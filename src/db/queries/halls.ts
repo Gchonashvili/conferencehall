@@ -353,6 +353,11 @@ export async function listEventTypes(db: Database, locale: string) {
   return rows.map((e) => ({ slug: e.slug, name: pickText(e.name, locale) }));
 }
 
+export async function listAmenities(db: Database, locale: string) {
+  const rows = await db.select().from(amenities).orderBy(asc(amenities.sortOrder));
+  return rows.map((a) => ({ slug: a.slug, name: pickText(a.name, locale) }));
+}
+
 /** For the sitemap. */
 export async function listPublishedSlugs(db: Database): Promise<{ slug: string; updatedAt: Date }[]> {
   return db

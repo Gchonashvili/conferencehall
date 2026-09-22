@@ -44,11 +44,15 @@ export function bookingRequestSchema(today: string) {
 
 export type BookingRequestInput = z.infer<ReturnType<typeof bookingRequestSchema>>;
 
-/** First error code per field, ready to show next to the inputs. */
+/**
+ * First error code per field, ready to show next to the inputs. Nested paths
+ * (e.g. a bilingual `name.ka` / `name.en` pair, see `admin-input.ts`) join
+ * with ".", matching the dotted keys those forms post fields under.
+ */
 export function fieldErrors(error: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};
   for (const issue of error.issues) {
-    const key = String(issue.path[0] ?? "form");
+    const key = issue.path.join(".") || "form";
     if (!(key in out)) out[key] = issue.message;
   }
   return out;

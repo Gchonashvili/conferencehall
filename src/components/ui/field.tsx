@@ -100,6 +100,77 @@ export function SelectField({
   );
 }
 
+/** A row of checkboxes sharing one `name` (event types, amenities). */
+export function CheckboxGroup({
+  legend,
+  name,
+  options,
+  defaultValue = [],
+  className,
+}: {
+  legend: string;
+  name: string;
+  options: { value: string; label: string }[];
+  defaultValue?: string[];
+  className?: string;
+}) {
+  return (
+    <fieldset className={className}>
+      <legend className="mb-1.5 text-sm font-semibold">{legend}</legend>
+      <div className="flex flex-wrap gap-x-4 gap-y-2">
+        {options.map((o) => {
+          const id = `${name}-${o.value}`;
+          return (
+            <label key={o.value} htmlFor={id} className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                id={id}
+                name={name}
+                value={o.value}
+                defaultChecked={defaultValue.includes(o.value)}
+                className="size-4 rounded border-brown accent-brown"
+              />
+              {o.label}
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+/** Georgian + English text inputs side by side under one label, for bilingual fields. */
+export function BilingualTextField({
+  legend,
+  name,
+  ka,
+  en,
+  errorKa,
+  errorEn,
+  textarea,
+  className,
+}: {
+  legend: string;
+  name: string;
+  ka?: string;
+  en?: string;
+  errorKa?: string;
+  errorEn?: string;
+  textarea?: boolean;
+  className?: string;
+}) {
+  const Field = textarea ? TextareaField : TextField;
+  return (
+    <fieldset className={className}>
+      <legend className="mb-1.5 text-sm font-semibold">{legend}</legend>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field id={`${name}-ka`} name={`${name}.ka`} label="ქართული" defaultValue={ka} error={errorKa} />
+        <Field id={`${name}-en`} name={`${name}.en`} label="English" defaultValue={en} error={errorEn} />
+      </div>
+    </fieldset>
+  );
+}
+
 export type RadioOption = { value: string; label: string; hint?: string };
 
 /** Radio group as used for event type, time of day and area in the reference. */
