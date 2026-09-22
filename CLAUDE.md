@@ -83,3 +83,7 @@ Forms in `src/app/actions/*.ts` use React's `useActionState` + Server Actions re
 ### Environment config
 
 All env vars are validated centrally in `src/env.ts` (Zod). Optional integrations (Mailgun, n8n, Turnstile) degrade to a logged no-op in development when unset, but the same code path throws in production rather than silently dropping messages — don't add a new integration without following that pattern. See `.env.example` for the full list and `README.md` for which vars are required in production and how the Railway deploy (web / cron / n8n services) is wired.
+
+when creating forms of the website - always use field validation
+
+always use GEL symbol as a currency on the website 
