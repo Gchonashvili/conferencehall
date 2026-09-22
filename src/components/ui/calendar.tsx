@@ -4,6 +4,7 @@ import { DayPicker } from "react-day-picker";
 import { enGB, ka } from "react-day-picker/locale";
 import { useLocale } from "next-intl";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { isoDay } from "@/lib/dates";
 
 const localeMap = { en: enGB, ka } as const;
 
@@ -69,7 +70,7 @@ export function Calendar({
         <input
           type="hidden"
           name={name}
-          value={selected ? selected.toISOString().slice(0, 10) : ""}
+          value={selected ? isoDay(selected) : ""}
         />
       ) : null}
     </div>
