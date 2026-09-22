@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens: single source of truth for the visual language.
+ *
+ * Colors marked "sampled" were measured (modal pixel value of flat regions)
+ * from the Lumière Events reference images in /research. To restyle the whole
+ * site, edit this block only. Contrast between token pairs is enforced by
+ * src/lib/contrast.test.ts.
+ */
+@theme {
+  /* Sampled from the reference */
+  --color-brown: #4a2f11; /* nav bar, headings, body text */
+  --color-page: #fff1ea; /* page background outside the panel */
+  --color-panel: #fffdfe; /* centered white content panel */
+  --color-blush: #fff2f0; /* card and form-panel tint */
+  --color-peach: #fdd3bf; /* filter bar, pill buttons, chips, footer */
+  --color-coral: #db605e; /* icons, dots, borders (decorative only) */
+
+  /* Derived (not sampled): form-field tone, blush nudged toward peach */
+  --color-field: #ffe9e1;
+
+  /*
+   * AA-safe coral. The reference coral (#db605e) is only 3.6:1 against white
+   * and 3.3:1 against blush, which fails WCAG AA for small text (PRD
+   * requirement). This is the same hue, darkened just enough to reach 4.5:1
+   * for button labels and small coral text.
+   */
+  --color-coral-strong: #bc4544;
+
+  /* Type */
+  --font-serif:
+    var(--font-fraunces), var(--font-noto-georgian), Georgia, "Times New Roman",
+    serif;
+
+  /* Shape */
+  --radius-card: 1.25rem;
+  --radius-image: 0.875rem;
+  --radius-nav: 1.5rem;
+
+  /* Soft, pink-tinted elevation, as in the reference cards */
+  --shadow-card: 0 6px 24px -8px rgb(253 211 191 / 0.55);
+  --shadow-panel: 0 0 80px 0 rgb(74 47 17 / 0.06);
+}
+
+@layer base {
+  html {
+    background: var(--color-page);
+    color: var(--color-brown);
+    font-family: var(--font-serif);
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--color-page);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brown);
+    outline-offset: 2px;
+  }
+}

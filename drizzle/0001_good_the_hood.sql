@@ -1,0 +1,1 @@
+ALTER TYPE "public"."inquiry_kind" ADD VALUE 'venue';

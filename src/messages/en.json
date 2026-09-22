@@ -1,0 +1,369 @@
+{
+  "brand": {
+    "name": "Conferencehall"
+  },
+  "nav": {
+    "halls": "Halls",
+    "cities": "Cities",
+    "forVenues": "For venues",
+    "login": "Login",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "language": "Language",
+    "skipToContent": "Skip to content"
+  },
+  "hero": {
+    "title": "The right conference hall in Georgia, verified and ready to book.",
+    "subtitle": "Compare capacity, layouts and prices across Georgia's hotels and venues. Send one request and get confirmed by the venue."
+  },
+  "search": {
+    "city": "City",
+    "eventType": "Event type",
+    "guests": "Guests",
+    "price": "Price",
+    "layout": "Layout",
+    "cta": "Search halls",
+    "filters": "Filters",
+    "any": "Any",
+    "clearFilters": "Clear filters",
+    "pageLabel": "Pages"
+  },
+  "cities": {
+    "tbilisi": "Tbilisi",
+    "batumi": "Batumi",
+    "kutaisi": "Kutaisi"
+  },
+  "eventTypes": {
+    "conference": "Conference",
+    "training": "Training",
+    "gala": "Gala dinner",
+    "exhibition": "Exhibition",
+    "meeting": "Meeting"
+  },
+  "layouts": {
+    "theatre": "Theatre",
+    "classroom": "Classroom",
+    "banquet": "Banquet",
+    "reception": "Reception"
+  },
+  "guestRanges": {
+    "upTo50": "Up to 50",
+    "from50to150": "50–150",
+    "from150to300": "150–300",
+    "over300": "300+"
+  },
+  "priceRanges": {
+    "upTo500": "Up to 500 ₾",
+    "from500to1500": "500–1,500 ₾",
+    "over1500": "1,500 ₾ and up"
+  },
+  "priceUnits": {
+    "hour": "per hour",
+    "halfDay": "per half-day",
+    "day": "per day"
+  },
+  "sections": {
+    "featuredHalls": "Featured halls",
+    "browseByEventType": "Browse by event type",
+    "browseByCity": "Browse by city",
+    "viewAll": "View all"
+  },
+  "banner": {
+    "title": "From a 20-person boardroom to a 1,000-delegate conference, find a verified hall in your city.",
+    "cta": "Browse halls"
+  },
+  "trust": {
+    "verifiedHalls": "Verified halls",
+    "citiesCovered": "Cities covered",
+    "oneRequest": "One request, confirmed by the venue",
+    "upfrontPrices": "Prices shown upfront"
+  },
+  "hallCard": {
+    "startingFrom": "Starting from",
+    "capacity": "{min}–{max} guests",
+    "verified": "Verified",
+    "hallsCount": "{count, plural, one {# hall} other {# halls}}",
+    "reviews": "({count, plural, one {# review} other {# reviews}})"
+  },
+  "hall": {
+    "areasAvailable": "Areas available",
+    "portfolio": "Photos",
+    "viewAllPhotos": "View all photos",
+    "guests": "{count} guests"
+  },
+  "booking": {
+    "title": "Request to book",
+    "name": "Name",
+    "phone": "Contact number",
+    "email": "Email",
+    "guests": "Number of guests",
+    "eventType": "Event type",
+    "timeOfDay": "Time of day",
+    "times": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "fullDay": "Full day"
+    },
+    "area": "Select area",
+    "selectDate": "Select date",
+    "submit": "Request to book",
+    "note": "The venue replies before you pay anything."
+  },
+  "auth": {
+    "welcome": "Welcome to {brand}",
+    "email": "Email",
+    "fullName": "Full name",
+    "phone": "Phone number",
+    "password": "Password",
+    "confirmPassword": "Re-enter password",
+    "signupOrganizer": "Sign me up as organizer",
+    "signupVenue": "Sign me up as venue"
+  },
+  "reservations": {
+    "title": "My reservations",
+    "upcoming": "Upcoming",
+    "history": "History",
+    "bookingUnder": "Booking under",
+    "eventType": "Event type",
+    "date": "Date selected",
+    "time": "Event time",
+    "guests": "No. of guests",
+    "area": "Area selected",
+    "amountPaid": "Amount paid",
+    "depositDue": "Deposit due",
+    "printReceipt": "Print receipt",
+    "payDeposit": "Pay deposit",
+    "status": {
+      "pending": "Awaiting venue",
+      "accepted": "Accepted, deposit due",
+      "paid": "Paid",
+      "declined": "Declined",
+      "expired": "Expired",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    }
+  },
+  "payment": {
+    "title": "Booking summary",
+    "hallPrice": "Hall price",
+    "deposit": "Deposit due now",
+    "balance": "Balance payable to venue",
+    "total": "Total",
+    "method": "Select payment method",
+    "card": "Bank card",
+    "cardHint": "Visa, Mastercard",
+    "pay": "Pay deposit"
+  },
+  "footer": {
+    "contact": "Contact us",
+    "social": "Social media",
+    "service": "Customer service",
+    "about": "About us",
+    "faq": "FAQ",
+    "howPaymentsWork": "How payments work",
+    "contactForm": "Contact form",
+    "aboutUs": "About us",
+    "listYourHall": "List your hall",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "credits": "Photo credits"
+  },
+  "states": {
+    "emptyTitle": "No halls match your filters",
+    "emptyBody": "Try a different city or a larger guest range, or send us your brief and we will help you find one.",
+    "emptyCta": "Tell us your brief",
+    "errorTitle": "Something went wrong",
+    "errorBody": "We could not load this page. Please try again.",
+    "retry": "Try again",
+    "noticeSuccess": "Request sent. The venue will reply soon.",
+    "noticeError": "We could not send your request. Please check the highlighted fields.",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you are looking for does not exist or has moved.",
+    "backHome": "Back to home"
+  },
+  "hallTypes": {
+    "conference_hall": "Conference hall",
+    "ballroom": "Ballroom",
+    "meeting_room": "Meeting room",
+    "auditorium": "Auditorium",
+    "exhibition_hall": "Exhibition hall"
+  },
+  "home": {
+    "whyTitle": "Why Conferencehall",
+    "whyVerifiedTitle": "Verified halls",
+    "whyVerifiedBody": "Every hall is checked by our team: real photos, real capacity, real prices.",
+    "whyOneRequestTitle": "One request",
+    "whyOneRequestBody": "The venue confirms before you pay anything.",
+    "whyUpfrontTitle": "Prices up front",
+    "whyUpfrontBody": "Starting prices and capacity per layout are shown on every hall.",
+    "whyHelpTitle": "Real people",
+    "whyHelpBody": "Not sure which hall fits? Tell us your brief and we will help.",
+    "briefTitle": "Can’t decide? Tell us your brief.",
+    "briefBody": "Share the date, the number of guests and what you need. We will suggest halls that fit.",
+    "briefCta": "Tell us your brief",
+    "venueTitle": "Own a conference hall in Georgia?",
+    "venueCta": "List your hall"
+  },
+  "halls": {
+    "title": "Conference halls in Georgia",
+    "inCity": "Conference halls in {city}",
+    "forEvent": "Halls for {event}",
+    "count": "{count, plural, one {# hall found} other {# halls found}}",
+    "metaDescription": "Compare verified conference halls in Georgia by capacity, layout and price. Send one request and get confirmed by the venue."
+  },
+  "hallPage": {
+    "about": "About this hall",
+    "amenities": "Amenities",
+    "suitableFor": "Suitable for",
+    "location": "Location",
+    "similar": "Similar halls",
+    "capacityRange": "{min}–{max} guests",
+    "verifiedVenue": "Verified venue",
+    "indoor": "Indoor",
+    "outdoor": "Outdoor",
+    "breadcrumb": "Breadcrumb",
+    "venue": "Venue",
+    "hall": "Hall"
+  },
+  "citiesPage": {
+    "title": "Conference halls by city",
+    "intro": "Pick a city to see its verified halls."
+  },
+  "errors": {
+    "required": "This field is required",
+    "name_required": "Please enter your name",
+    "invalid_phone": "Enter a valid phone number, e.g. 555 12 34 56",
+    "invalid_email": "Enter a valid email address",
+    "invalid_guests": "Enter a number of guests, at least 1",
+    "invalid_date": "Please pick a date",
+    "date_in_past": "The date can’t be in the past",
+    "invalid_time": "Please choose a time of day",
+    "invalid_event_type": "This hall doesn’t host that type of event",
+    "invalid_area": "Please choose one of the listed areas",
+    "message_too_long": "Please keep the message under 1,000 characters",
+    "guests_exceed_capacity": "That is more guests than this hall can hold",
+    "hall_unavailable": "This hall is no longer available",
+    "rate_limited": "You have sent several requests recently. Please try again in an hour.",
+    "spam": "We could not verify you are human. Please try again.",
+    "generic": "Something went wrong. Please try again.",
+    "invalid_city": "Please choose a city",
+    "invalid_credentials": "Incorrect email or password",
+    "email_not_verified": "Please confirm your email first. We sent you a link.",
+    "password_short": "Use at least 8 characters",
+    "password_mismatch": "The passwords don’t match",
+    "invalid_token": "This link has expired. Please request a new one.",
+    "forbidden": "You do not have access to this request",
+    "invalid_state": "This request has already been answered",
+    "expired": "This request has expired",
+    "invalid_price": "Enter a price in lari, e.g. 1800"
+  },
+  "booking2": {
+    "sending": "Sending…",
+    "successTitle": "Request sent",
+    "successBody": "Your reference is {reference}. The venue will reply soon and we will email you at {email}.",
+    "fixErrors": "Please check the highlighted fields."
+  },
+  "contact": {
+    "title": "Contact us",
+    "briefTitle": "Tell us your brief",
+    "venueTitle": "List your hall",
+    "intro": "Write to us and we will get back to you soon.",
+    "briefIntro": "Share the date, the number of guests and what you need. We will suggest halls that fit.",
+    "venueIntro": "Tell us about your venue and its halls. Our team will contact you to get your halls listed and verified.",
+    "name": "Your name",
+    "email": "Email",
+    "phone": "Phone number",
+    "message": "Message",
+    "venueMessage": "Venue name, city and the halls you would like to list",
+    "city": "City",
+    "eventType": "Event type",
+    "guests": "Number of guests",
+    "date": "Event date",
+    "choose": "Choose…",
+    "submit": "Send",
+    "sending": "Sending…",
+    "successTitle": "Thank you",
+    "successBody": "We got your message and will get back to you soon."
+  },
+  "forVenues": {
+    "title": "List your conference hall on Conferencehall",
+    "intro": "Reach organizations looking for verified conference halls in Georgia. We list, photograph-check and verify your halls; you answer requests from a simple dashboard.",
+    "b1Title": "Qualified requests",
+    "b1Body": "Every request has a date, headcount and event type. No cold enquiries.",
+    "b2Title": "WhatsApp alerts",
+    "b2Body": "Get every new request on WhatsApp and email the moment it arrives.",
+    "b3Title": "You stay in control",
+    "b3Body": "Accept or decline in one place. Organizers pay a deposit only after you confirm.",
+    "formTitle": "Get your hall listed"
+  },
+  "authPages": {
+    "loginTitle": "Log in",
+    "loginCta": "Log in",
+    "noAccount": "No account yet?",
+    "signupLink": "Sign up",
+    "forgot": "Forgot your password?",
+    "signupTitle": "Create your account",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in",
+    "checkEmailTitle": "Check your email",
+    "checkEmailBody": "If this address can be used, we sent a link to it. Open it to continue.",
+    "forgotTitle": "Reset your password",
+    "forgotBody": "Enter your email and we will send you a link to choose a new password.",
+    "forgotCta": "Send link",
+    "resetTitle": "Choose a new password",
+    "newPassword": "New password",
+    "resetCta": "Save password",
+    "resetDone": "Your password was changed. You can log in now.",
+    "verified": "Your email is confirmed. You can log in now.",
+    "logout": "Log out",
+    "account": "My account",
+    "dashboard": "Dashboard",
+    "admin": "Admin"
+  },
+  "reservations2": {
+    "expired": "Expired",
+    "cancelled": "Cancelled",
+    "completed": "Completed",
+    "empty": "You have no reservations yet.",
+    "browse": "Browse halls",
+    "notFoundVenue": "Your account is not linked to a venue yet. Our team will link it once your venue is verified."
+  },
+  "dashboard": {
+    "title": "Requests",
+    "empty": "No requests yet. New ones appear here and on WhatsApp.",
+    "pending": "Needs your answer",
+    "answered": "Answered",
+    "back": "All requests",
+    "guests": "{count} guests",
+    "received": "Received",
+    "expires": "Reply before",
+    "accept": "Accept",
+    "decline": "Decline",
+    "totalPrice": "Total price for this booking (₾)",
+    "totalHint": "The organizer pays {percent}% of this as a deposit after you accept.",
+    "reason": "Reason (optional)",
+    "sent": "Your answer was sent to the organizer.",
+    "contact": "Contact",
+    "message": "Message",
+    "noVenue": "Your account is not linked to a venue yet. Our team will link it once your venue is verified.",
+    "statusLabel": "Status"
+  },
+  "credits": {
+    "title": "Photo credits",
+    "intro": "The atmosphere photos on this site (backgrounds, city and event-type images) come from Unsplash and are used under the Unsplash License. Photos of halls always come from the venues themselves.",
+    "photoBy": "{slot}: photo by {name} on Unsplash",
+    "none": "No stock photos are in use yet.",
+    "slots": {
+      "hero": "Homepage",
+      "banner": "Banner",
+      "city-tbilisi": "Tbilisi",
+      "city-batumi": "Batumi",
+      "city-kutaisi": "Kutaisi",
+      "event-conference": "Conference",
+      "event-gala": "Gala dinner",
+      "event-exhibition": "Exhibition",
+      "event-meeting": "Meeting"
+    }
+  }
+}
