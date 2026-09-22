@@ -152,6 +152,21 @@ const RENDERERS: Record<string, (p: Payload, l: string) => Rendered> = {
       ].join("\n"),
     ),
 
+  "request.cancelled.organizer": (p, l) =>
+    make(
+      pick(l, `მოთხოვნა ${s(p, "reference")} გაუქმდა`, `Request ${s(p, "reference")} was cancelled`),
+      [
+        pick(l, `გამარჯობა, ${s(p, "contactName")}.`, `Hello ${s(p, "contactName")},`),
+        "",
+        pick(l, "ჩვენმა გუნდმა გააუქმა თქვენი მოთხოვნა.", "Our team cancelled your request."),
+        s(p, "cancelReason") ? `${pick(l, "მიზეზი", "Reason")}: ${s(p, "cancelReason")}` : "",
+        "",
+        `${pick(l, "იხილეთ სხვა დარბაზები", "See other halls")}: ${s(p, "searchUrl")}`,
+      ]
+        .filter((x, i, a) => x !== "" || a[i - 1] !== "")
+        .join("\n"),
+    ),
+
   // Accounts
   "auth.verify_email": (p, l) =>
     make(

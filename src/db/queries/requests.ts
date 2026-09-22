@@ -131,3 +131,24 @@ export async function countPendingForOwner(db: Database, ownerUserId: string): P
     .where(and(eq(venues.ownerUserId, ownerUserId), eq(bookingRequests.status, "pending")));
   return n;
 }
+
+/** Every request, any venue — for the admin panel. Nothing is scoped. */
+export async function listAllRequestsForAdmin(
+  db: Database,
+  locale: string,
+  filters: { status?: RequestRow["status"] } = {},
+): Promise<RequestRow[]> {
+  const q = filters.status ? base(db).where(eq(bookingRequests.status, filters.status)) : base(db);
+  const rows = await q.orderBy(pendingFirst, desc(bookingRequests.createdAt));
+  return rows.map((r) => localize(r, locale));
+}
+
+export async function getRequestForAdmin(db: Database, requestId: string, locale: string): Promise<RequestRow | null> {
+  const [row] = await base(db).where(eq(bookingRequests.id, requestId));
+  return row ? localize(row, locale) : null;
+}
+
+export async function countPendingRequests(db: Database): Promise<number> {
+  const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(bookingRequests).where(eq(bookingRequests.status, "pending"));
+  return n;
+}

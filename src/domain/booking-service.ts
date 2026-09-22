@@ -283,6 +283,50 @@ export async function respondToRequest(
   });
 }
 
+// --------------------------------------------------------------- cancel
+/** The team cancels a request (spam, duplicate, an unresponsive venue). Locked, same as `respondToRequest`. */
+export async function cancelRequest(
+  db: Database,
+  requestId: string,
+  opts: { reason?: string; now?: Date },
+): Promise<void> {
+  const now = opts.now ?? new Date();
+
+  return db.transaction(async (tx) => {
+    const [locked] = await tx
+      .select({ id: bookingRequests.id, status: bookingRequests.status, locale: bookingRequests.locale })
+      .from(bookingRequests)
+      .where(eq(bookingRequests.id, requestId))
+      .for("update", { of: bookingRequests });
+    if (!locked) throw new BookingError("not_found");
+
+    try {
+      assertTransition(locked.status, "cancelled");
+    } catch (e) {
+      if (e instanceof InvalidTransitionError) throw new BookingError("invalid_state");
+      throw e;
+    }
+
+    await tx
+      .update(bookingRequests)
+      .set({ status: "cancelled", declineReason: opts.reason?.trim().slice(0, 500) || null, respondedAt: now })
+      .where(eq(bookingRequests.id, locked.id));
+
+    const locale = (locked.locale === "en" ? "en" : "ka") as Locale;
+    const ctx = await requestContext(tx, locked.id, locale);
+    await enqueueNotifications(tx, [
+      {
+        kind: "request.cancelled.organizer",
+        channel: "email",
+        recipient: ctx.request.contactEmail,
+        locale,
+        payload: { ...ctx.payload, cancelReason: opts.reason ?? "" },
+        dedupeKey: `request.cancelled.organizer:${locked.id}:email:${ctx.request.contactEmail}`,
+      },
+    ], now);
+  });
+}
+
 // --------------------------------------------------------------- expire
 /** Marks unanswered requests as expired and tells the organizer. Run from the cron endpoint. */
 export async function expireStaleRequests(db: Database, opts: { now?: Date } = {}): Promise<number> {

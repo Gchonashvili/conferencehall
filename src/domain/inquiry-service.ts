@@ -147,3 +147,8 @@ export async function createInquiry(
     return row;
   });
 }
+
+/** Marks a lead handled (or back to new) from the admin panel. No state machine — just a flag. */
+export async function setInquiryStatus(db: Database, id: string, status: "new" | "handled"): Promise<void> {
+  await db.update(inquiries).set({ status }).where(eq(inquiries.id, id));
+}

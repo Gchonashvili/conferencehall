@@ -364,7 +364,11 @@
       "suspended": "Suspended",
       "published": "Published",
       "viewVenues": "Manage venues",
-      "viewHalls": "Manage halls"
+      "viewHalls": "Manage halls",
+      "pendingRequests": "Pending requests",
+      "newLeads": "New leads",
+      "viewRequests": "View requests",
+      "viewLeads": "View leads"
     },
     "venues": {
       "title": "Venues",
@@ -468,6 +472,43 @@
       "setCover": "Make cover",
       "add": "Add image",
       "delete": "Remove"
+    },
+    "requests": {
+      "title": "Requests",
+      "back": "All requests",
+      "empty": "No requests yet.",
+      "all": "All",
+      "hall": "Hall",
+      "venue": "Venue",
+      "contact": "Contact",
+      "message": "Message",
+      "guests": "{count} guests",
+      "received": "Received",
+      "responded": "Responded",
+      "expires": "Expires",
+      "totalPrice": "Total price",
+      "deposit": "Deposit",
+      "declineReason": "Decline reason",
+      "cancelReason": "Cancel reason (optional)",
+      "cancel": "Cancel this request",
+      "cancelled": "Request cancelled.",
+      "noAction": "No action available for a request in this state."
+    },
+    "leads": {
+      "title": "Leads",
+      "empty": "No leads yet.",
+      "all": "All",
+      "new": "New",
+      "handled": "Handled",
+      "kind": "Type",
+      "kind_contact": "Contact form",
+      "kind_brief": "Brief",
+      "kind_venue": "List your hall",
+      "contact": "Contact",
+      "message": "Message",
+      "received": "Received",
+      "markHandled": "Mark handled",
+      "markNew": "Mark new"
     }
   },
   "credits": {

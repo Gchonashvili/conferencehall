@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createMemoryDb, type Database } from "@/db";
 import { inquiries, notificationEvents } from "@/db/schema";
-import { createInquiry, InquiryError, inquirySchema } from "./inquiry-service";
+import { createInquiry, InquiryError, inquirySchema, setInquiryStatus } from "./inquiry-service";
 
 let db: Database;
 const NOW = new Date("2026-09-21T10:00:00Z");
@@ -59,5 +59,17 @@ describe("createInquiry", () => {
     for (let i = 0; i < 5; i++) await createInquiry(db, base, { locale: "en", now: NOW });
     await expect(createInquiry(db, base, { locale: "en", now: NOW })).rejects.toBeInstanceOf(InquiryError);
     await expect(createInquiry(db, base, { locale: "en", now: new Date(NOW.getTime() + 61 * 60_000) })).resolves.toBeTruthy();
+  });
+});
+
+describe("setInquiryStatus", () => {
+  it("toggles a lead between new and handled", async () => {
+    const { id } = await createInquiry(db, { kind: "contact", name: "Nino", email: "toggle@example.ge", message: "hello there" }, { locale: "en", now: NOW });
+
+    await setInquiryStatus(db, id, "handled");
+    expect((await db.select().from(inquiries).where(eq(inquiries.id, id)))[0].status).toBe("handled");
+
+    await setInquiryStatus(db, id, "new");
+    expect((await db.select().from(inquiries).where(eq(inquiries.id, id)))[0].status).toBe("new");
   });
 });

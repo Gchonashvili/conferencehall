@@ -6,6 +6,7 @@ import { bookingRequests, hallAreas, halls, notificationEvents, venues } from "@
 import type { BookingRequestInput } from "./booking-input";
 import {
   BookingError,
+  cancelRequest,
   createBookingRequest,
   expireStaleRequests,
   respondToRequest,
@@ -193,6 +194,42 @@ describe("respondToRequest", () => {
     await expect(
       respondToRequest(db, { requestId: "00000000-0000-4000-8000-000000000000", actor: { role: "admin" }, response: { type: "decline" } }),
     ).rejects.toBeInstanceOf(BookingError);
+  });
+});
+
+describe("cancelRequest", () => {
+  it("cancels a pending request and tells the organizer, in their own language", async () => {
+    const { id } = await createBookingRequest(db, input(), { locale: "ka", now: NOW });
+    await cancelRequest(db, id, { reason: "Duplicate submission", now: NOW });
+
+    const [r] = await db.select().from(bookingRequests).where(eq(bookingRequests.id, id));
+    expect(r.status).toBe("cancelled");
+    expect(r.declineReason).toBe("Duplicate submission");
+    expect(r.respondedAt).toEqual(NOW);
+
+    const mail = (await outboxFor(id)).find((e) => e.kind === "request.cancelled.organizer")!;
+    expect(mail.locale).toBe("ka");
+    expect(mail.payload.cancelReason).toBe("Duplicate submission");
+  });
+
+  it("also cancels an accepted or paid request", async () => {
+    const { id } = await createBookingRequest(db, input(), { locale: "en", now: NOW });
+    await respondToRequest(db, { requestId: id, actor: { role: "admin" }, response: { type: "accept", totalTetri: 100000 } }, { now: NOW });
+    await cancelRequest(db, id, { now: NOW });
+    const [r] = await db.select().from(bookingRequests).where(eq(bookingRequests.id, id));
+    expect(r.status).toBe("cancelled");
+  });
+
+  it("refuses to cancel a request that is already in a terminal state", async () => {
+    const { id } = await createBookingRequest(db, input(), { locale: "en", now: NOW });
+    await respondToRequest(db, { requestId: id, actor: { role: "admin" }, response: { type: "decline" } }, { now: NOW });
+    await expect(cancelRequest(db, id, { now: NOW })).rejects.toMatchObject({ code: "invalid_state" });
+    const [r] = await db.select().from(bookingRequests).where(eq(bookingRequests.id, id));
+    expect(r.status).toBe("declined"); // untouched
+  });
+
+  it("reports an unknown request", async () => {
+    await expect(cancelRequest(db, "00000000-0000-4000-8000-000000000000", {})).rejects.toBeInstanceOf(BookingError);
   });
 });
 
