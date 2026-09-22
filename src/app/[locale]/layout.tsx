@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Noto_Serif_Georgian } from "next/font/google";
+import { Inter, Noto_Sans_Georgian } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -10,15 +10,15 @@ import { env } from "@/env";
 import { siteConfig } from "@/lib/site";
 import "../globals.css";
 
-// The reference uses a soft, slightly wonky serif for everything. Fraunces is
-// the closest free match; Noto Serif Georgian covers Georgian glyphs, which
-// Fraunces does not include (the CSS font stack falls back per character).
-const fraunces = Fraunces({
+// booking.com-style crisp sans-serif (see research/booking-reference/). Inter
+// is the closest free match; Noto Sans Georgian covers Georgian glyphs, which
+// Inter does not include (the CSS font stack falls back per character).
+const inter = Inter({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-fraunces",
+  variable: "--font-inter",
   display: "swap",
 });
-const notoGeorgian = Noto_Serif_Georgian({
+const notoGeorgian = Noto_Sans_Georgian({
   subsets: ["georgian"],
   variable: "--font-noto-georgian",
   display: "swap",
@@ -46,7 +46,7 @@ export default async function LocaleLayout({
   const t = await getTranslations("nav");
 
   return (
-    <html lang={locale} className={`${fraunces.variable} ${notoGeorgian.variable}`}>
+    <html lang={locale} className={`${inter.variable} ${notoGeorgian.variable}`}>
       <body>
         <NextIntlClientProvider>
           <a
@@ -55,7 +55,7 @@ export default async function LocaleLayout({
           >
             {t("skipToContent")}
           </a>
-          <div className="mx-auto flex min-h-dvh max-w-[1280px] flex-col bg-panel shadow-panel">
+          <div className="flex min-h-dvh flex-col bg-panel">
             <Nav />
             <main id="main" className="flex-1">
               {children}

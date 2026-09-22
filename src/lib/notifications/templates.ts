@@ -32,9 +32,9 @@ export function escapeHtml(v: string): string {
 function wrapHtml(title: string, text: string): string {
   const body = escapeHtml(text)
     .split("\n")
-    .map((l) => (l ? `<p style="margin:0 0 8px">${l.replace(/(https?:\/\/\S+)/g, '<a href="$1" style="color:#bc4544">$1</a>')}</p>` : "<br>"))
+    .map((l) => (l ? `<p style="margin:0 0 8px">${l.replace(/(https?:\/\/\S+)/g, '<a href="$1" style="color:#005ea6">$1</a>')}</p>` : "<br>"))
     .join("");
-  return `<!doctype html><html><body style="margin:0;background:#fff1ea;padding:24px;font-family:Georgia,serif;color:#4a2f11"><div style="max-width:560px;margin:auto;background:#fffdfe;border-radius:16px;padding:28px"><h1 style="font-size:20px;margin:0 0 16px">${escapeHtml(title)}</h1>${body}</div></body></html>`;
+  return `<!doctype html><html><body style="margin:0;background:#ffffff;padding:24px;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#003b95"><div style="max-width:560px;margin:auto;background:#ffffff;border:1px solid #eef2f7;border-radius:8px;padding:28px"><h1 style="font-size:20px;margin:0 0 16px">${escapeHtml(title)}</h1>${body}</div></body></html>`;
 }
 
 function make(subject: string, text: string, whatsapp?: Rendered["whatsapp"]): Rendered {

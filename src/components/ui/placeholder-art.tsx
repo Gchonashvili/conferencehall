@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 type Variant = "theatre" | "banquet" | "stage";
 
 const PALETTES: Record<Variant, { wall: [string, string]; accent: string; seat: string }> = {
-  theatre: { wall: ["#f7efe6", "#e6d6c4"], accent: "#4a2f11", seat: "#b98a4a" },
-  banquet: { wall: ["#e9b45a", "#7a4a1a"], accent: "#fff2f0", seat: "#f5d9a8" },
-  stage: { wall: ["#c2377a", "#5a1247"], accent: "#ffd9ee", seat: "#8f1d3f" },
+  theatre: { wall: ["#eef2f7", "#cddaeb"], accent: "#003b95", seat: "#5f8fd1" },
+  banquet: { wall: ["#0071c2", "#003b95"], accent: "#eef2f7", seat: "#6fa8dc" },
+  stage: { wall: ["#005ea6", "#00265c"], accent: "#e6f0fb", seat: "#3d7ec2" },
 };
 
 export function PlaceholderArt({

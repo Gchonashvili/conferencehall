@@ -4,50 +4,54 @@
  * Design tokens: single source of truth for the visual language.
  *
  * Colors marked "sampled" were measured (modal pixel value of flat regions)
- * from the Lumière Events reference images in /research. To restyle the whole
- * site, edit this block only. Contrast between token pairs is enforced by
- * src/lib/contrast.test.ts.
+ * from the booking.com reference screenshots in /research/booking-reference
+ * (2026-09-22; the site previously matched a Lumière Events reference — see
+ * git history and the [[feedback-follow-design-reference]] memory for why it
+ * changed). To restyle the whole site, edit this block only. Contrast
+ * between token pairs is enforced by src/lib/contrast.test.ts. Token *names*
+ * are kept from the old palette to minimize the diff; only their values and
+ * roles changed.
  */
 @theme {
   /* Sampled from the reference */
-  --color-brown: #4a2f11; /* nav bar, headings, body text */
-  --color-page: #fff1ea; /* page background outside the panel */
-  --color-panel: #fffdfe; /* centered white content panel */
-  --color-blush: #fff2f0; /* card and form-panel tint */
-  --color-peach: #fdd3bf; /* filter bar, pill buttons, chips, footer */
-  --color-coral: #db605e; /* icons, dots, borders (decorative only) */
+  --color-brown: #003b95; /* navy: nav bar, headings, body text, primary buttons */
+  --color-page: #ffffff; /* page background */
+  --color-panel: #ffffff; /* same as page now that the site is edge-to-edge (no boxed panel) */
+  --color-blush: #eef2f7; /* pale neutral tint for cards and sections */
+  --color-peach: #e6f0fb; /* pale blue tint: filter bar, chips, footer */
+  --color-coral: #0071c2; /* booking.com's accent blue: links, icons, borders */
 
   /* Derived (not sampled): form-field tone, blush nudged toward peach */
-  --color-field: #ffe9e1;
+  --color-field: #e3ecf7;
 
   /*
-   * AA-safe coral. The reference coral (#db605e) is only 3.6:1 against white
-   * and 3.3:1 against blush, which fails WCAG AA for small text (PRD
-   * requirement). This is the same hue, darkened just enough to reach 4.5:1
-   * for button labels and small coral text.
+   * A darker shade of the same accent blue, for places that want extra
+   * contrast margin (e.g. filled button labels). Both `coral` and
+   * `coral-strong` already clear WCAG AA (4.5:1) on their own, unlike the
+   * old reference coral.
    */
-  --color-coral-strong: #bc4544;
+  --color-coral-strong: #005ea6;
 
   /* Type */
-  --font-serif:
-    var(--font-fraunces), var(--font-noto-georgian), Georgia, "Times New Roman",
-    serif;
+  --font-sans:
+    var(--font-inter), var(--font-noto-georgian), -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
 
-  /* Shape */
-  --radius-card: 1.25rem;
-  --radius-image: 0.875rem;
-  --radius-nav: 1.5rem;
+  /* Shape: crisp, booking.com-style corners */
+  --radius-card: 0.5rem;
+  --radius-image: 0.375rem;
+  --radius-nav: 0.25rem;
 
-  /* Soft, pink-tinted elevation, as in the reference cards */
-  --shadow-card: 0 6px 24px -8px rgb(253 211 191 / 0.55);
-  --shadow-panel: 0 0 80px 0 rgb(74 47 17 / 0.06);
+  /* Minimal elevation; cards mostly rely on a thin border instead */
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-panel: none;
 }
 
 @layer base {
   html {
     background: var(--color-page);
     color: var(--color-brown);
-    font-family: var(--font-serif);
+    font-family: var(--font-sans);
   }
 
   body {

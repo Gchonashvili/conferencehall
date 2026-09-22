@@ -19,6 +19,7 @@ describe("design tokens meet WCAG AA for normal text (4.5:1)", () => {
     ["brown on panel", token("brown"), token("panel")],
     ["brown on blush", token("brown"), token("blush")],
     ["brown on peach", token("brown"), token("peach")],
+    ["coral on panel", token("coral"), token("panel")],
     ["coral-strong on panel", token("coral-strong"), token("panel")],
     ["coral-strong on blush", token("coral-strong"), token("blush")],
     ["white on coral-strong (button label)", WHITE, token("coral-strong")],
@@ -27,11 +28,5 @@ describe("design tokens meet WCAG AA for normal text (4.5:1)", () => {
 
   it.each(pairs)("%s", (_label, fg, bg) => {
     expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(AA_TEXT);
-  });
-});
-
-describe("reference coral is decorative only", () => {
-  it("is documented as failing AA on white, which is why coral-strong exists", () => {
-    expect(contrastRatio(token("coral"), WHITE)).toBeLessThan(AA_TEXT);
   });
 });
