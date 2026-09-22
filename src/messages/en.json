@@ -259,7 +259,8 @@
     "invalid_price": "Enter a price in lari, e.g. 1800",
     "slug_taken": "That name is already used by another listing. Try a more specific name.",
     "not_found": "That could not be found. It may have been removed.",
-    "invalid_url": "Enter a valid image URL, starting with https://"
+    "invalid_url": "Enter a valid image URL, starting with https://",
+    "invalid_image_host": "That image host isn’t allowed yet. Ask a developer to add it to NEXT_PUBLIC_IMAGE_HOST, or use one that already is."
   },
   "booking2": {
     "sending": "Sending…",

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { hallSchema, venueSchema } from "./admin-input";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { hallImageSchema, hallSchema, venueSchema } from "./admin-input";
 
 /**
  * Regression: an HTML checkbox is absent from the submission (undefined)
@@ -54,5 +54,33 @@ describe("checkbox fields accept an absent (unchecked) value", () => {
     });
     expect(result.success).toBe(true);
     if (result.success) expect(result.data.verified).toBe(true);
+  });
+});
+
+/**
+ * Rejecting the host on input is half of the guard; the render sites skip
+ * unusable URLs too (see lib/image-hosts.ts), because a row entered before
+ * this check would otherwise 500 the hall page.
+ */
+describe("hallImageSchema host check", () => {
+  const ORIGINAL = process.env.NEXT_PUBLIC_IMAGE_HOST;
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_IMAGE_HOST = "photos.example.com";
+  });
+  afterEach(() => {
+    if (ORIGINAL === undefined) delete process.env.NEXT_PUBLIC_IMAGE_HOST;
+    else process.env.NEXT_PUBLIC_IMAGE_HOST = ORIGINAL;
+  });
+
+  const image = (url: string) => hallImageSchema.safeParse({ url, alt: { ka: "", en: "" }, isCover: undefined });
+
+  it("accepts an allowed host", () => {
+    expect(image("https://photos.example.com/hall.jpg").success).toBe(true);
+  });
+
+  it("rejects a host next/image cannot serve", () => {
+    const result = image("https://somewhere-else.example.org/hall.jpg");
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.issues[0].message).toBe("invalid_image_host");
   });
 });

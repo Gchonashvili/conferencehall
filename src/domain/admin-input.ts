@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isDisplayableImageUrl } from "@/lib/image-hosts";
 
 /**
  * Server-side validation for the admin panel's venue/hall forms. Same style
@@ -86,7 +87,14 @@ export const hallAreaSchema = z.object({
 export type HallAreaInput = z.infer<typeof hallAreaSchema>;
 
 export const hallImageSchema = z.object({
-  url: z.string().trim().max(1000).pipe(z.url({ error: "invalid_url" })),
+  // The host must be one next/image is configured to serve, or the photo would
+  // throw at render instead of just failing to load. See lib/image-hosts.ts.
+  url: z
+    .string()
+    .trim()
+    .max(1000)
+    .pipe(z.url({ error: "invalid_url" }))
+    .refine(isDisplayableImageUrl, { error: "invalid_image_host" }),
   alt: i18nOptional,
   isCover: checkbox,
 });

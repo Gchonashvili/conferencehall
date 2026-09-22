@@ -17,6 +17,7 @@ import { getHallBySlug, getSimilarHalls, type HallDetail } from "@/db/queries/ha
 import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/i18n/locale";
 import { env } from "@/env";
+import { isDisplayableImageUrl } from "@/lib/image-hosts";
 import { formatGel } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: `/${locale}/halls/${slug}`,
       languages: { ka: `/ka/halls/${slug}`, en: `/en/halls/${slug}` },
     },
-    openGraph: hall.coverUrl ? { images: [hall.coverUrl] } : undefined,
+    openGraph: isDisplayableImageUrl(hall.coverUrl) ? { images: [hall.coverUrl!] } : undefined,
   };
 }
 
@@ -113,6 +114,10 @@ export default async function HallPage({ params }: Props) {
     getTranslations("sections"),
   ]);
 
+  // A URL next/image can't serve throws at render, so fall back to the
+  // illustration rather than 500 the page. See lib/image-hosts.ts.
+  const cover = hall.images.find((img) => isDisplayableImageUrl(img.url)) ?? null;
+
   const areaOptions = hall.areas.map((a) => ({
     value: a.id,
     label: a.name,
@@ -145,8 +150,8 @@ export default async function HallPage({ params }: Props) {
       <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
         <div className="flex min-w-0 flex-col gap-10">
           <div className="relative aspect-[16/9] overflow-hidden rounded-card">
-            {hall.images[0] ? (
-              <Image src={hall.images[0].url} alt={hall.images[0].alt} fill priority sizes="(min-width: 1024px) 760px, 100vw" className="object-cover" />
+            {cover ? (
+              <Image src={cover.url} alt={cover.alt} fill priority sizes="(min-width: 1024px) 760px, 100vw" className="object-cover" />
             ) : (
               <PlaceholderArt variant="theatre" alt="" />
             )}

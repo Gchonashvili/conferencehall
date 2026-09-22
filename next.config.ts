@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { parseImageHosts } from "./src/lib/image-hosts";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -27,10 +28,15 @@ const nextConfig: NextConfig = {
   // Native/WASM database drivers must not be bundled.
   serverExternalPackages: ["@electric-sql/pglite", "pg"],
   images: {
-    // Hall photos live in object storage (Cloudflare R2). Set the public host.
-    remotePatterns: process.env.NEXT_PUBLIC_IMAGE_HOST
-      ? [{ protocol: "https", hostname: process.env.NEXT_PUBLIC_IMAGE_HOST }]
-      : [],
+    // Hosts hall photos may be served from: object storage (Cloudflare R2) once
+    // uploads exist, and meanwhile wherever the team hosts photos it pastes into
+    // the admin panel. Comma-separated; named hosts only, never a wildcard, so
+    // the image optimizer can't be pointed at arbitrary URLs. `src/lib/image-hosts.ts`
+    // checks the same list on input and at render.
+    remotePatterns: parseImageHosts(process.env.NEXT_PUBLIC_IMAGE_HOST).map((hostname) => ({
+      protocol: "https" as const,
+      hostname,
+    })),
   },
 };
 

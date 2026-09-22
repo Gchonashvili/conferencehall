@@ -1,5 +1,6 @@
 import { Building2, MapPin, ShieldCheck } from "lucide-react";
 import Image from "next/image";
+import { isDisplayableImageUrl } from "@/lib/image-hosts";
 import { useLocale, useTranslations } from "next-intl";
 import { Chip } from "@/components/ui/chip";
 import { PlaceholderArt } from "@/components/ui/placeholder-art";
@@ -49,13 +50,16 @@ export function HallCard({
   const t = useTranslations("hallCard");
   const tUnits = useTranslations("priceUnits");
   const locale = useLocale();
+  // A URL next/image can't serve would throw and 500 the page, so treat it as
+  // no photo at all and show the illustration instead.
+  const photo = isDisplayableImageUrl(imageUrl) ? imageUrl : null;
 
   return (
     <article className="relative rounded-card bg-blush p-2.5 shadow-card transition-shadow focus-within:shadow-lg hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden rounded-image">
-        {imageUrl ? (
+        {photo ? (
           <Image
-            src={imageUrl}
+            src={photo}
             alt=""
             fill
             sizes="(min-width: 1024px) 380px, (min-width: 768px) 45vw, 92vw"
