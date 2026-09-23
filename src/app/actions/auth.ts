@@ -1,6 +1,6 @@
 "use server";
 
-import { APIError } from "better-auth";
+import { isAPIError } from "better-auth/api";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -65,7 +65,14 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
       await (await getDb()).update(user).set({ role: "venue" }).where(eq(user.id, res.user.id));
     }
   } catch (err) {
-    if (!(err instanceof APIError)) {
+    // `instanceof APIError` alone is unreliable here: Next's production build
+    // can split the Server Actions bundle and the `/api/auth/[...all]` route
+    // bundle into separate chunks, each pulling in its own copy of the
+    // `better-auth` module — so the class Better Auth throws internally and
+    // the one this file imports can be two different classes at runtime, and
+    // `instanceof` silently returns false. `isAPIError` (from `better-auth/api`)
+    // also falls back to checking `err.name`, which survives that split.
+    if (!isAPIError(err)) {
       console.error("[auth] sign-up failed", err);
       return { status: "error", formError: "generic", values };
     }
@@ -87,7 +94,7 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
     const res = await (await getAuth()).api.signInEmail({ body: parsed.data, headers: await headers() });
     role = (res.user as { role?: string }).role ?? "organizer";
   } catch (err) {
-    if (err instanceof APIError) {
+    if (isAPIError(err)) {
       const code = String((err.body as { code?: string } | undefined)?.code ?? "");
       return { status: "error", formError: CODE_MAP[code] ?? "invalid_credentials", values };
     }
@@ -133,7 +140,7 @@ export async function resetPassword(_prev: FormState, formData: FormData): Promi
   try {
     await (await getAuth()).api.resetPassword({ body: { newPassword: pw.data, token } });
   } catch (err) {
-    if (err instanceof APIError) return { status: "error", formError: "invalid_token", values };
+    if (isAPIError(err)) return { status: "error", formError: "invalid_token", values };
     console.error("[auth] password reset failed", err);
     return { status: "error", formError: "generic", values };
   }
