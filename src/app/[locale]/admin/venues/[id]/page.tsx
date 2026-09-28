@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { updateVenueAction } from "@/app/actions/admin";
+import { logPaymentAction, updateVenueAction } from "@/app/actions/admin";
+import { PaymentForm } from "@/components/admin/payment-form";
+import { SubscriptionBadge } from "@/components/admin/subscription-badge";
 import { VenueForm } from "@/components/admin/venue-form";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { getDb } from "@/db";
 import { getVenueForAdmin } from "@/db/queries/admin";
 import { listCities } from "@/db/queries/halls";
+import { listPayments } from "@/db/queries/subscriptions";
+import { nextPeriod, subscriptionHealth } from "@/domain/subscriptions";
 import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/i18n/locale";
+import { todayInTbilisi } from "@/lib/dates";
+import { formatDate } from "@/lib/format-date";
+import { formatGel } from "@/lib/money";
 import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -19,15 +26,26 @@ export default async function EditVenuePage({ params }: { params: Promise<{ loca
   const locale = await resolveLocale(params);
   const { id } = await params;
   await requireUser(locale, ["admin"]);
-  const [t, tHalls, db] = await Promise.all([
+  const [t, tHalls, tSubs, db] = await Promise.all([
     getTranslations("admin.venueForm"),
     getTranslations("admin.halls"),
+    getTranslations("admin.subscriptions"),
     getDb(),
   ]);
 
-  const [result, cities] = await Promise.all([getVenueForAdmin(db, id, locale), listCities(db, locale)]);
+  // A malformed id would make Postgres reject the uuid comparison (a 500), so it's simply not found.
+  const validId = /^[0-9a-f-]{36}$/i.test(id);
+  const [result, cities, payments] = await Promise.all([
+    validId ? getVenueForAdmin(db, id, locale) : null,
+    listCities(db, locale),
+    validId ? listPayments(db, id) : [],
+  ]);
   if (!result) notFound();
   const { venue, halls } = result;
+
+  const today = todayInTbilisi();
+  const health = subscriptionHealth(venue, today);
+  const period = nextPeriod(venue, today);
 
   return (
     <section className="px-5 py-10 md:px-12">
@@ -58,6 +76,8 @@ export default async function EditVenuePage({ params }: { params: Promise<{ loca
               verified: venue.verified,
               subscriptionStatus: venue.subscriptionStatus,
               subscriptionUntil: venue.subscriptionUntil,
+              plan: venue.plan,
+              planPriceTetri: venue.planPriceTetri,
               depositPercent: venue.depositPercent,
             }}
           />
@@ -86,6 +106,57 @@ export default async function EditVenuePage({ params }: { params: Promise<{ loca
           </ul>
         </div>
       </div>
+
+      <section id="subscription" aria-labelledby="subscription-title" className="mt-10 scroll-mt-6">
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <h2 id="subscription-title" className="text-2xl font-semibold">
+            {tSubs("sectionTitle")}
+          </h2>
+          <SubscriptionBadge health={health} label={tSubs(`health_${health}`)} />
+          {venue.subscriptionUntil ? (
+            <span className="text-sm">
+              {tSubs("paidUntil")}: {formatDate(venue.subscriptionUntil, locale)}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="max-w-2xl rounded-card bg-blush p-5 shadow-card md:p-6">
+            <h3 className="mb-4 text-lg font-semibold">{tSubs("logPayment")}</h3>
+            <PaymentForm
+              locale={locale}
+              venueId={venue.id}
+              action={logPaymentAction}
+              defaults={{
+                amount: venue.planPriceTetri != null ? (venue.planPriceTetri / 100).toString() : "",
+                paidOn: today,
+                periodStart: period.start,
+                periodEnd: period.end,
+              }}
+            />
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-lg font-semibold">{tSubs("history")}</h3>
+            {payments.length === 0 ? <p className="text-sm opacity-80">{tSubs("noPayments")}</p> : null}
+            <ul className="flex flex-col gap-2">
+              {payments.map((p) => (
+                <li key={p.id} className="rounded-lg bg-blush px-4 py-3 text-sm shadow-card">
+                  <p className="font-semibold">
+                    {formatGel(p.amountTetri, locale)} · {formatDate(p.paidOn, locale)}
+                  </p>
+                  <p className="opacity-80">
+                    {formatDate(p.periodStart, locale)} – {formatDate(p.periodEnd, locale)}
+                    {p.invoiceNo ? ` · ${tSubs("invoiceNo")} ${p.invoiceNo}` : ""}
+                  </p>
+                  {p.note ? <p className="mt-1">{p.note}</p> : null}
+                  {p.recordedBy ? <p className="mt-1 text-xs opacity-70">{tSubs("recordedBy", { name: p.recordedBy })}</p> : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
     </section>
   );
 }

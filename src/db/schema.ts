@@ -37,6 +37,7 @@ const updatedAt = () =>
 // ---------------------------------------------------------------- enums
 export const venueStatus = pgEnum("venue_status", ["draft", "active", "suspended"]);
 export const subscriptionStatus = pgEnum("subscription_status", ["none", "trial", "active", "expired"]);
+export const subscriptionPlan = pgEnum("subscription_plan", ["monthly", "yearly"]);
 export const hallStatus = pgEnum("hall_status", ["draft", "published"]);
 export const hallType = pgEnum("hall_type", [
   "conference_hall",
@@ -108,6 +109,9 @@ export const venues = pgTable(
     verified: boolean("verified").notNull().default(false),
     subscriptionStatus: subscriptionStatus("subscription_status").notNull().default("none"),
     subscriptionUntil: date("subscription_until", { mode: "string" }),
+    /** Agreed billing cycle and price (tetri per cycle). Invoices are sent manually. */
+    plan: subscriptionPlan("plan"),
+    planPriceTetri: integer("plan_price_tetri"),
     /** Overrides the platform default deposit percentage when set. */
     depositPercent: integer("deposit_percent"),
     /** Auth user that manages this venue (venue dashboard login). */
@@ -349,6 +353,30 @@ export const inquiries = pgTable(
     index("inquiries_status_idx").on(t.status, t.createdAt),
     index("inquiries_owner_idx").on(t.ownerUserId),
   ],
+);
+
+/**
+ * Subscription payments a venue made, logged by the team (billing is manual
+ * in v1). Logging one extends the venue's `subscriptionUntil`.
+ */
+export const subscriptionPayments = pgTable(
+  "subscription_payments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    venueId: uuid("venue_id")
+      .notNull()
+      .references(() => venues.id),
+    amountTetri: integer("amount_tetri").notNull(),
+    paidOn: date("paid_on", { mode: "string" }).notNull(),
+    /** The period this payment covers, both days inclusive. */
+    periodStart: date("period_start", { mode: "string" }).notNull(),
+    periodEnd: date("period_end", { mode: "string" }).notNull(),
+    invoiceNo: text("invoice_no"),
+    note: text("note"),
+    recordedByUserId: text("recorded_by_user_id").references(() => user.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("subscription_payments_venue_idx").on(t.venueId, t.paidOn)],
 );
 
 /**

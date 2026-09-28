@@ -36,6 +36,13 @@
       "when": 1790611737414,
       "tag": "0004_lead_pipeline",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790612422802,
+      "tag": "0005_subscriptions",
+      "breakpoints": true
     }
   ]
 }

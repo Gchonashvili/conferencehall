@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { Database } from "@/db";
-import { adminNotes, bookingRequests, inquiries, user, venues } from "@/db/schema";
-import type { LeadUpdate } from "./crm-input";
+import { adminNotes, bookingRequests, inquiries, subscriptionPayments, user, venues } from "@/db/schema";
+import type { LeadUpdate, PaymentInput } from "./crm-input";
 
 /** Expected failures, with codes the UI can translate. */
 export class CrmError extends Error {
@@ -63,7 +63,45 @@ export async function updateLead(
   });
 }
 
-const ENTITY_TABLES = { inquiry: inquiries, booking_request: bookingRequests, venue: venues } as const;
+/**
+ * Logs a subscription payment and, in the same transaction, extends the
+ * venue's paid-until date to the end of the period it covers. A payment for
+ * an earlier period (entered late) never shortens it.
+ */
+export async function logSubscriptionPayment(
+  db: Database,
+  venueId: string,
+  input: PaymentInput,
+  opts: { actorUserId: string; now?: Date },
+): Promise<void> {
+  const now = opts.now ?? new Date();
+
+  await db.transaction(async (tx) => {
+    const [venue] = await tx
+      .select({ until: venues.subscriptionUntil })
+      .from(venues)
+      .where(eq(venues.id, venueId))
+      .for("update");
+    if (!venue) throw new CrmError("not_found");
+
+    await tx.insert(subscriptionPayments).values({
+      venueId,
+      amountTetri: input.amount,
+      paidOn: input.paidOn,
+      periodStart: input.periodStart,
+      periodEnd: input.periodEnd,
+      invoiceNo: input.invoiceNo,
+      note: input.note,
+      recordedByUserId: opts.actorUserId,
+      createdAt: now,
+    });
+
+    const until = venue.until && venue.until > input.periodEnd ? venue.until : input.periodEnd;
+    await tx.update(venues).set({ subscriptionUntil: until, subscriptionStatus: "active", updatedAt: now }).where(eq(venues.id, venueId));
+  });
+}
+
+const ENTITY_TABLES ={ inquiry: inquiries, booking_request: bookingRequests, venue: venues } as const;
 
 /** Adds a free-text note to a lead, booking request or venue. */
 export async function addNote(

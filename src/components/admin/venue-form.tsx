@@ -23,6 +23,8 @@ export type VenueFormValues = {
   verified: boolean;
   subscriptionStatus: "none" | "trial" | "active" | "expired";
   subscriptionUntil: string | null;
+  plan: "monthly" | "yearly" | null;
+  planPriceTetri: number | null;
   depositPercent: number | null;
 };
 
@@ -148,6 +150,28 @@ export function VenueForm({
             { value: "active", label: t("subscriptionActive") },
             { value: "expired", label: t("subscriptionExpired") },
           ]}
+        />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SelectField
+          id="venue-plan"
+          name="plan"
+          label={t("plan")}
+          placeholder={t("planNone")}
+          defaultValue={field("plan", venue?.plan ?? undefined)}
+          options={[
+            { value: "monthly", label: t("planMonthly") },
+            { value: "yearly", label: t("planYearly") },
+          ]}
+          error={err("plan")}
+        />
+        <TextField
+          id="venue-plan-price"
+          name="planPrice"
+          inputMode="decimal"
+          label={t("planPrice")}
+          defaultValue={field("planPrice", venue?.planPriceTetri != null ? (venue.planPriceTetri / 100).toString() : undefined)}
+          error={err("planPrice")}
         />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">

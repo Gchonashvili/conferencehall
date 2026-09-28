@@ -63,6 +63,8 @@ export async function createVenue(db: Database, input: VenueInput): Promise<{ id
       verified: input.verified,
       subscriptionStatus: input.subscriptionStatus,
       subscriptionUntil: input.subscriptionUntil ?? null,
+      plan: input.plan ?? null,
+      planPriceTetri: input.planPrice ?? null,
       depositPercent: input.depositPercent ?? null,
     })
     .returning({ id: venues.id, slug: venues.slug });
@@ -93,6 +95,8 @@ export async function updateVenue(db: Database, venueId: string, input: VenueInp
       verified: input.verified,
       subscriptionStatus: input.subscriptionStatus,
       subscriptionUntil: input.subscriptionUntil ?? null,
+      plan: input.plan ?? null,
+      planPriceTetri: input.planPrice ?? null,
       depositPercent: input.depositPercent ?? null,
     })
     .where(eq(venues.id, venueId));

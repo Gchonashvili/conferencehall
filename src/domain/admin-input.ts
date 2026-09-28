@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isDisplayableImageUrl } from "@/lib/image-hosts";
+import { parseGel } from "@/lib/money";
 
 /**
  * Server-side validation for the admin panel's venue/hall forms. Same style
@@ -54,6 +55,20 @@ export const venueSchema = z.object({
   verified: checkbox,
   subscriptionStatus: z.enum(SUBSCRIPTION_STATUS, { error: "invalid_state" }),
   subscriptionUntil: z.preprocess(blankToUndefined, z.string().optional()),
+  plan: z.preprocess(blankToUndefined, z.enum(["monthly", "yearly"], { error: "invalid_state" }).optional()),
+  /** Price per billing cycle, typed in lari; becomes tetri. */
+  planPrice: z
+    .preprocess(blankToUndefined, z.string().optional())
+    .transform((v, ctx) => {
+      if (v === undefined) return undefined;
+      const tetri = parseGel(v);
+      if (tetri === null) {
+        ctx.addIssue({ code: "custom", message: "invalid_price" });
+        return z.NEVER;
+      }
+      return tetri;
+    })
+    .optional(),
   depositPercent: z.preprocess(blankToUndefined, z.coerce.number().int().min(1).max(100).optional()),
 });
 export type VenueInput = z.infer<typeof venueSchema>;

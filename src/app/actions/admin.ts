@@ -24,8 +24,8 @@ import {
   updateVenue,
 } from "@/domain/admin-service";
 import { BookingError, cancelRequest } from "@/domain/booking-service";
-import { leadUpdateSchema, noteSchema } from "@/domain/crm-input";
-import { addNote, CrmError, updateLead } from "@/domain/crm-service";
+import { leadUpdateSchema, noteSchema, paymentSchema } from "@/domain/crm-input";
+import { addNote, CrmError, logSubscriptionPayment, updateLead } from "@/domain/crm-service";
 import { getDb } from "@/db";
 import { redirect } from "@/i18n/navigation";
 import { drainOutboxSoon } from "@/lib/drain";
@@ -78,6 +78,29 @@ export async function updateVenueAction(_prev: FormState, formData: FormData): P
   }
 
   revalidatePath(`/${locale}/admin/venues`, "layout");
+  return { status: "success" };
+}
+
+export async function logPaymentAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const values = echoValues(formData);
+  const locale = localeOf(values.locale);
+  const me = await requireUser(locale, ["admin"]);
+
+  const venueId = uuid(values.venueId);
+  if (!venueId.success) return { status: "error", formError: "not_found", values };
+
+  const parsed = paymentSchema.safeParse(values);
+  if (!parsed.success) return { status: "error", fieldErrors: fieldErrors(parsed.error), values };
+
+  try {
+    await logSubscriptionPayment(await getDb(), venueId.data, parsed.data, { actorUserId: me.id });
+  } catch (err) {
+    if (err instanceof CrmError) return { status: "error", formError: err.code, values };
+    console.error("[admin] log payment failed", err);
+    return { status: "error", formError: "generic", values };
+  }
+
+  revalidatePath(`/${locale}/admin`, "layout");
   return { status: "success" };
 }
 

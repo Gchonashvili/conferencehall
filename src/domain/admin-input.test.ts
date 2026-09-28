@@ -57,6 +57,30 @@ describe("checkbox fields accept an absent (unchecked) value", () => {
   });
 });
 
+describe("venueSchema billing plan", () => {
+  const venue = (extra: Record<string, unknown>) =>
+    venueSchema.safeParse({
+      name: { ka: "ტესტი", en: "Test" },
+      description: { ka: "", en: "" },
+      address: { ka: "", en: "" },
+      citySlug: "tbilisi",
+      status: "active",
+      subscriptionStatus: "none",
+      ...extra,
+    });
+
+  it("is optional, and the price is typed in lari and stored in tetri", () => {
+    const none = venue({ plan: "", planPrice: "" });
+    expect(none.success && [none.data.plan, none.data.planPrice]).toEqual([undefined, undefined]);
+    const yearly = venue({ plan: "yearly", planPrice: "1 200" });
+    expect(yearly.success && [yearly.data.plan, yearly.data.planPrice]).toEqual(["yearly", 120000]);
+  });
+
+  it("rejects an unreadable price", () => {
+    expect(venue({ planPrice: "lots" }).error?.issues[0]).toMatchObject({ path: ["planPrice"], message: "invalid_price" });
+  });
+});
+
 /**
  * Regression: a published hall with no event types rendered a booking form
  * with no event-type choices, so every request failed `invalid_event_type`.
