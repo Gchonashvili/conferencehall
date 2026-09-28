@@ -26,8 +26,8 @@ export default async function HallsPage({ params, searchParams }: Props) {
   const [t, sp] = await Promise.all([getTranslations("halls"), searchParams]);
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <h1 className="mb-6 text-3xl font-semibold md:text-4xl">{t("title")}</h1>
+    <section className="px-5 py-5 md:px-12 md:py-10">
+      <h1 className="mb-2 text-2xl font-semibold md:mb-6 md:text-4xl">{t("title")}</h1>
       <HallResults filters={parseHallFilters(sp)} locale={locale} />
     </section>
   );

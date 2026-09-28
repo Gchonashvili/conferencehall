@@ -34,13 +34,14 @@ export function Hero({
         />
       </div>
       <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-brown/90 via-brown/70 to-brown/30" />
-      <div className="px-5 pt-16 pb-10 text-white md:px-12 md:pt-28 md:pb-12">
+      {/* On phones the hero stays short so the search is in the first screen. */}
+      <div className="px-5 pt-6 pb-6 text-white md:px-12 md:pt-28 md:pb-12">
         {/* Georgian glyphs are wider than Latin, so the headline steps down one size. */}
-        <h1 className="max-w-3xl text-4xl leading-[1.1] font-bold md:text-6xl [html[lang=ka]_&]:text-3xl [html[lang=ka]_&]:md:text-5xl">
+        <h1 className="max-w-3xl text-2xl leading-[1.15] font-bold md:text-6xl md:leading-[1.1] [html[lang=ka]_&]:text-xl [html[lang=ka]_&]:md:text-5xl">
           {title}
         </h1>
-        <p className="mt-4 max-w-2xl text-lg font-semibold md:text-xl">{subtitle}</p>
-        {children ? <div className="mt-8 max-w-4xl text-brown md:mt-12">{children}</div> : null}
+        <p className="mt-2 line-clamp-2 max-w-2xl text-sm font-semibold md:mt-4 md:line-clamp-none md:text-xl">{subtitle}</p>
+        {children ? <div className="mt-4 max-w-4xl text-brown md:mt-12">{children}</div> : null}
       </div>
     </section>
   );

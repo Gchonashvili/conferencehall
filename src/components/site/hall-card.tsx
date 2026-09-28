@@ -55,7 +55,7 @@ export function HallCard({
   const photo = isDisplayableImageUrl(imageUrl) ? imageUrl : null;
 
   return (
-    <article className="relative rounded-card bg-blush p-2.5 shadow-card transition-shadow focus-within:shadow-lg hover:shadow-lg">
+    <article className="relative h-full rounded-card bg-blush p-2.5 shadow-card transition-shadow focus-within:shadow-lg hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden rounded-image">
         {photo ? (
           <Image

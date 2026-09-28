@@ -25,7 +25,7 @@ export async function HallResults({
   return (
     <div>
       <ListingFilters filters={filterDefs} />
-      <p className="mt-4 text-sm" aria-live="polite">
+      <p className="mt-3 text-sm md:mt-4" aria-live="polite">
         {t("count", { count: result.total })}
       </p>
 
@@ -35,7 +35,7 @@ export async function HallResults({
         </div>
       ) : (
         <>
-          <ul className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-3 grid gap-4 md:mt-6 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {result.items.map((hall) => (
               <li key={hall.id}>
                 <HallCardItem hall={hall} />

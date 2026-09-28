@@ -65,3 +65,11 @@
     outline-offset: 2px;
   }
 }
+
+/* Swipeable rows on phones: still scrollable by touch/trackpad, no visible bar. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

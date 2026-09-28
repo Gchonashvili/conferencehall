@@ -1,14 +1,18 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
-import { Select } from "radix-ui";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type FilterOption = { value: string; label: string };
 
 /**
- * One dropdown inside the peach filter bar ("No Of Guests v", "Venue Type v"
- * in the reference). Radix Select gives keyboard and screen-reader support.
+ * One dropdown in the filter bar ("City v", "Guests v").
+ *
+ * A native <select>, deliberately: it always closes on an outside tap or
+ * Escape (a custom listbox trapped users until they picked something), opens
+ * the phone's own picker on mobile, and works inside a plain GET form without
+ * JavaScript. The first option is the label itself with an empty value, so a
+ * filter can always be cleared again.
  */
 export function FilterSelect({
   label,
@@ -25,44 +29,30 @@ export function FilterSelect({
   name?: string;
   className?: string;
 }) {
+  const controlled = value !== undefined;
   return (
-    <Select.Root value={value} onValueChange={onValueChange} name={name}>
-      <Select.Trigger
+    <div
+      className={cn(
+        "relative flex min-w-0 items-center rounded-lg text-sm font-semibold text-brown hover:bg-peach/60 focus-within:bg-peach/60",
+        className,
+      )}
+    >
+      <select
         aria-label={label}
-        className={cn(
-          "flex min-w-0 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-brown hover:bg-peach/60 data-[state=open]:bg-peach/60",
-          className,
-        )}
+        name={name}
+        {...(controlled
+          ? { value, onChange: (e) => onValueChange?.(e.target.value) }
+          : { defaultValue: "" })}
+        className="w-full min-w-0 cursor-pointer appearance-none truncate bg-transparent py-2 pr-8 pl-3 font-semibold text-brown focus:outline-none"
       >
-        <span className="truncate">
-          <Select.Value placeholder={label} />
-        </span>
-        <Select.Icon>
-          <ChevronDown aria-hidden className="size-4 shrink-0" />
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Content
-          position="popper"
-          sideOffset={6}
-          className="z-50 min-w-(--radix-select-trigger-width) overflow-hidden rounded-xl border border-peach bg-panel p-1 shadow-card"
-        >
-          <Select.Viewport>
-            {options.map((o) => (
-              <Select.Item
-                key={o.value}
-                value={o.value}
-                className="relative flex cursor-pointer items-center rounded-lg py-2 pr-3 pl-8 text-sm text-brown outline-none data-[highlighted]:bg-blush data-[state=checked]:font-semibold"
-              >
-                <Select.ItemIndicator className="absolute left-2.5">
-                  <Check aria-hidden className="size-4 text-coral-strong" />
-                </Select.ItemIndicator>
-                <Select.ItemText>{o.label}</Select.ItemText>
-              </Select.Item>
-            ))}
-          </Select.Viewport>
-        </Select.Content>
-      </Select.Portal>
-    </Select.Root>
+        <option value="">{label}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown aria-hidden className="pointer-events-none absolute right-3 size-4 shrink-0" />
+    </div>
   );
 }

@@ -41,8 +41,8 @@ export default async function CityPage({ params, searchParams }: Props) {
   if (!city) notFound();
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <h1 className="mb-6 text-3xl font-semibold md:text-4xl">{t("inCity", { city: city.name })}</h1>
+    <section className="px-5 py-5 md:px-12 md:py-10">
+      <h1 className="mb-2 text-2xl font-semibold md:mb-6 md:text-4xl">{t("inCity", { city: city.name })}</h1>
       <HallResults filters={{ ...parseHallFilters(sp), city: slug }} locale={locale} omit={["city"]} />
     </section>
   );

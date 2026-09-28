@@ -8,7 +8,6 @@ import { FilterBar, type FilterDef } from "./filter-bar";
 
 /** Results-page filter bar that keeps the URL (and so the results) in sync. */
 export function ListingFilters({ filters }: { filters: FilterDef[] }) {
-  const t = useTranslations("search");
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -26,8 +25,11 @@ export function ListingFilters({ filters }: { filters: FilterDef[] }) {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
+  // On phones the filter pills stick to the top while the results scroll under them.
   return (
-    <FilterBar filters={filters} values={values} onValueChange={update} anyLabel={t("any")} />
+    <div className="sticky top-0 z-30 -mx-5 border-b border-peach bg-page px-5 py-2 md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
+      <FilterBar filters={filters} values={values} onValueChange={update} />
+    </div>
   );
 }
 

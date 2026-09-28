@@ -4,6 +4,7 @@ import { HallCardItem } from "@/components/site/hall-card-item";
 import { Hero } from "@/components/site/hero";
 import { PhotoBanner } from "@/components/site/photo-banner";
 import { getSearchFilters } from "@/components/site/search-filters";
+import { ScrollRow } from "@/components/site/scroll-row";
 import { SectionHeader } from "@/components/site/section-header";
 import { Tile } from "@/components/site/tile";
 import { TrustStrip } from "@/components/site/trust-strip";
@@ -38,7 +39,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ]);
 
   const citiesWithHalls = cities.filter((c) => (counts.cities[c.slug] ?? 0) > 0);
-  const section = "px-5 py-10 md:px-12";
+  const section = "px-5 py-6 md:px-12 md:py-10";
 
   return (
     <>
@@ -72,7 +73,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* 3. Browse by event type */}
       <section className={section}>
         <SectionHeader title={tSections("browseByEventType")} />
-        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ScrollRow className="md:grid-cols-2 lg:grid-cols-3">
           {eventTypes.map((e, i) => (
             <li key={e.slug}>
               <Tile
@@ -84,13 +85,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               />
             </li>
           ))}
-        </ul>
+        </ScrollRow>
       </section>
 
       {/* 4. Browse by city */}
       <section className={section}>
         <SectionHeader title={tSections("browseByCity")} href="/cities" viewAllLabel={tSections("viewAll")} />
-        <ul className="grid gap-6 md:grid-cols-3">
+        <ScrollRow className="md:grid-cols-3">
           {cities.map((c, i) => (
             <li key={c.slug}>
               <Tile
@@ -102,34 +103,34 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               />
             </li>
           ))}
-        </ul>
+        </ScrollRow>
       </section>
 
       {/* 5. Featured halls */}
       {featured.length > 0 ? (
         <section className={section}>
           <SectionHeader title={tSections("featuredHalls")} href="/halls" viewAllLabel={tSections("viewAll")} />
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ScrollRow size="lg" className="md:grid-cols-2 lg:grid-cols-3">
             {featured.map((h) => (
               <li key={h.id}>
                 <HallCardItem hall={h} />
               </li>
             ))}
-          </ul>
+          </ScrollRow>
         </section>
       ) : null}
 
       {/* 6. Why us */}
       <section className={section}>
         <SectionHeader title={tHome("whyTitle")} />
-        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ScrollRow className="md:grid-cols-2 lg:grid-cols-4">
           {(["Verified", "OneRequest", "Upfront", "Help"] as const).map((k) => (
-            <li key={k} className="rounded-card bg-blush p-5 shadow-card">
-              <h3 className="text-lg font-semibold">{tHome(`why${k}Title`)}</h3>
+            <li key={k} className="rounded-card bg-blush p-4 shadow-card md:p-5">
+              <h3 className="text-base font-semibold md:text-lg">{tHome(`why${k}Title`)}</h3>
               <p className="mt-2 text-sm">{tHome(`why${k}Body`)}</p>
             </li>
           ))}
-        </ul>
+        </ScrollRow>
       </section>
 
       {/* 7. Brief form (concierge fallback) */}

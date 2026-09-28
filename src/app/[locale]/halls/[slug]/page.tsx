@@ -8,6 +8,7 @@ import { AreasTable } from "@/components/site/areas-table";
 import { BookingSidebar } from "@/components/site/booking-sidebar";
 import { GalleryGrid } from "@/components/site/gallery-grid";
 import { HallCardItem } from "@/components/site/hall-card-item";
+import { ScrollRow } from "@/components/site/scroll-row";
 import { SectionHeader } from "@/components/site/section-header";
 import { Chip } from "@/components/ui/chip";
 import { PlaceholderArt } from "@/components/ui/placeholder-art";
@@ -71,7 +72,7 @@ function HallHeader({ hall }: { hall: HallDetail }) {
 
   return (
     <header>
-      <h1 className="text-3xl font-semibold md:text-4xl">{hall.name}</h1>
+      <h1 className="text-2xl font-semibold md:text-4xl">{hall.name}</h1>
       <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span>
           {t("venue")}: {hall.venueName}
@@ -97,6 +98,37 @@ function HallHeader({ hall }: { hall: HallDetail }) {
         </ul>
       </div>
     </header>
+  );
+}
+
+/**
+ * Phones only: the booking form sits at the end of a long page, so a bar
+ * pinned to the bottom keeps the price and a way to book always in reach.
+ */
+function MobileBookBar({ hall }: { hall: HallDetail }) {
+  const tBooking = useTranslations("booking");
+  const tCard = useTranslations("hallCard");
+  const tUnits = useTranslations("priceUnits");
+  const locale = useLocale();
+  const unitKey = { hour: "hour", half_day: "halfDay", day: "day" } as const;
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-peach bg-page px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-2px_8px_rgb(0_0_0/0.08)] lg:hidden">
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="truncate text-xs text-coral-strong">
+            {tCard("startingFrom")} · {tUnits(unitKey[hall.priceUnit])}
+          </p>
+          <p className="text-xl font-bold">{formatGel(hall.priceFromTetri, locale)}</p>
+        </div>
+        <a
+          href="#book"
+          className="shrink-0 rounded-md bg-coral-strong px-5 py-3 text-sm font-semibold tracking-wide text-white uppercase hover:bg-brown"
+        >
+          {tBooking("title")}
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -128,7 +160,8 @@ export default async function HallPage({ params }: Props) {
   }));
 
   return (
-    <div className="px-5 py-8 md:px-12">
+    // pb-28 on phones keeps the fixed book bar from covering the end of the page.
+    <div className="px-5 pt-5 pb-28 md:px-12 md:py-8 lg:pb-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(hall, locale) }} />
 
       <nav aria-label={t("breadcrumb")} className="mb-5 text-sm">
@@ -147,9 +180,10 @@ export default async function HallPage({ params }: Props) {
         </ol>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
-        <div className="flex min-w-0 flex-col gap-10">
-          <div className="relative aspect-[16/9] overflow-hidden rounded-card">
+      <div className="grid gap-8 md:gap-10 lg:grid-cols-[1fr_380px]">
+        <div className="flex min-w-0 flex-col gap-8 md:gap-10">
+          {/* Edge to edge on phones, like a photo app; rounded card from md up. */}
+          <div className="relative -mx-5 aspect-[4/3] overflow-hidden md:mx-0 md:aspect-[16/9] md:rounded-card">
             {cover ? (
               <Image src={cover.url} alt={cover.alt} fill priority sizes="(min-width: 1024px) 760px, 100vw" className="object-cover" />
             ) : (
@@ -223,7 +257,7 @@ export default async function HallPage({ params }: Props) {
         </div>
 
         {/* Taller than a laptop screen, so it scrolls inside itself instead of hiding the submit button. */}
-        <aside className="lg:sticky lg:top-6 lg:-m-2 lg:max-h-[calc(100dvh-2rem)] lg:self-start lg:overflow-y-auto lg:p-2">
+        <aside id="book" className="scroll-mt-4 lg:sticky lg:top-6 lg:-m-2 lg:max-h-[calc(100dvh-2rem)] lg:self-start lg:overflow-y-auto lg:p-2">
           <BookingSidebar
             action={submitBookingRequest}
             locale={locale}
@@ -235,17 +269,19 @@ export default async function HallPage({ params }: Props) {
       </div>
 
       {similar.length > 0 ? (
-        <section className="mt-14">
+        <section className="mt-10 md:mt-14">
           <SectionHeader title={t("similar")} href={`/cities/${hall.citySlug}`} viewAllLabel={tSections("viewAll")} />
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ScrollRow size="lg" className="md:grid-cols-2 lg:grid-cols-3">
             {similar.map((h) => (
               <li key={h.id}>
                 <HallCardItem hall={h} />
               </li>
             ))}
-          </ul>
+          </ScrollRow>
         </section>
       ) : null}
+
+      <MobileBookBar hall={hall} />
     </div>
   );
 }

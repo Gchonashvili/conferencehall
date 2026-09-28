@@ -16,7 +16,11 @@ export const ANY_VALUE = "__any";
  * - Form mode (default): each dropdown has a `name`, so the bar works inside
  *   a plain GET <form>, even without JavaScript.
  * - Controlled mode (`values` + `onValueChange`): used by the results page to
- *   keep the URL in sync. Passing `anyLabel` adds an "Any" option to clear a filter.
+ *   keep the URL in sync. Choosing the label option again clears a filter.
+ *
+ * On phones the two uses look different: the hero search (`boxed`) is a
+ * compact two-column card, and the results bar is one swipeable row of pills,
+ * so neither pushes the content below it off the first screen.
  */
 export function FilterBar({
   filters,
@@ -24,7 +28,6 @@ export function FilterBar({
   boxed = false,
   values,
   onValueChange,
-  anyLabel,
   className,
 }: {
   filters: FilterDef[];
@@ -33,33 +36,42 @@ export function FilterBar({
   boxed?: boolean;
   values?: Record<string, string | undefined>;
   onValueChange?: (id: string, value: string | undefined) => void;
-  anyLabel?: string;
   className?: string;
 }) {
   const controlled = values !== undefined;
   return (
     <div
       className={cn(
-        "flex flex-col gap-1.5 rounded-2xl bg-peach p-2 md:flex-row md:items-center md:gap-2",
+        "md:flex md:flex-row md:items-center md:gap-2 md:rounded-2xl md:bg-peach md:p-2",
+        boxed
+          ? "grid grid-cols-2 gap-2 rounded-2xl bg-peach p-3 shadow-card"
+          : "no-scrollbar flex gap-2 overflow-x-auto",
         className,
       )}
     >
-      {filters.map((f) => (
+      {filters.map((f, i) => (
         <FilterSelect
           key={f.id}
           name={f.id}
           label={f.label}
-          options={anyLabel ? [{ value: ANY_VALUE, label: anyLabel }, ...f.options] : f.options}
+          // The select's own first option (the label, empty value) clears a
+          // filter, so no separate "Any" entry is needed.
+          options={f.options}
           {...(controlled
             ? {
                 value: values[f.id] ?? "",
-                onValueChange: (v: string) => onValueChange?.(f.id, v === ANY_VALUE ? undefined : v),
+                onValueChange: (v: string) => onValueChange?.(f.id, v === "" || v === ANY_VALUE ? undefined : v),
               }
             : {})}
-          className={cn("md:flex-1", boxed && "bg-blush hover:bg-panel")}
+          className={cn(
+            "md:flex-1",
+            boxed
+              ? cn("bg-blush hover:bg-panel [&_select]:py-3 md:[&_select]:py-2", i === 0 && "col-span-2")
+              : "shrink-0 rounded-full border border-peach bg-panel md:shrink md:rounded-lg md:border-0 md:bg-transparent",
+          )}
         />
       ))}
-      {action}
+      {action ? <div className={cn("md:contents", boxed && "col-span-2 [&>*]:w-full md:[&>*]:w-auto")}>{action}</div> : null}
     </div>
   );
 }
