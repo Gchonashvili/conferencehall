@@ -73,4 +73,16 @@ describe("organizer access", () => {
   it("another verified user sees none of them", async () => {
     expect(await listOrganizerRequests(db, { id: "owner-a", email: "a@hotel.ge", emailVerified: true }, "en")).toEqual([]);
   });
+
+  it("a signed-in user sees a request made under a different email", async () => {
+    // Regression: the booking action never passed the session user, so this link was never stored.
+    const hallId = (await db.select().from(halls).where(eq(halls.slug, "grand-conference-hall-sample")))[0].id;
+    const { id } = await createBookingRequest(
+      db,
+      { name: "Anna", phone: "+995555333444", email: "anna@work.ge", guests: 20, eventType: "conference", eventDate: "2026-10-06", timeOfDay: "full_day", hallId },
+      { locale: "en", now: NOW, organizerUserId: "anna" },
+    );
+    const rows = await listOrganizerRequests(db, { id: "anna", email: "anna@example.ge", emailVerified: true }, "en");
+    expect(rows.map((r) => r.id)).toContain(id);
+  });
 });

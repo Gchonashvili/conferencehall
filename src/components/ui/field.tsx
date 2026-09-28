@@ -106,16 +106,22 @@ export function CheckboxGroup({
   name,
   options,
   defaultValue = [],
+  error,
   className,
 }: {
   legend: string;
   name: string;
   options: { value: string; label: string }[];
   defaultValue?: string[];
+  error?: string;
   className?: string;
 }) {
   return (
-    <fieldset className={className}>
+    <fieldset
+      className={className}
+      aria-invalid={error ? true : undefined}
+      aria-describedby={error ? `${name}-error` : undefined}
+    >
       <legend className="mb-1.5 text-sm font-semibold">{legend}</legend>
       <div className="flex flex-wrap gap-x-4 gap-y-2">
         {options.map((o) => {
@@ -135,6 +141,7 @@ export function CheckboxGroup({
           );
         })}
       </div>
+      <FieldError id={`${name}-error`} error={error} />
     </fieldset>
   );
 }

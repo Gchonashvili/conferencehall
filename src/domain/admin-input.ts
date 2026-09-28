@@ -74,7 +74,13 @@ export const hallSchema = z
     eventTypes: z.array(z.string().regex(SLUG)).default([]),
     amenities: z.array(z.string().regex(SLUG)).default([]),
   })
-  .refine((v) => v.capacityMax >= v.capacityMin, { error: "invalid_guests", path: ["capacityMax"] });
+  .refine((v) => v.capacityMax >= v.capacityMin, { error: "invalid_guests", path: ["capacityMax"] })
+  // The booking form only offers a hall's own event types, so a published hall
+  // with none could never be booked.
+  .refine((v) => v.status !== "published" || v.eventTypes.length > 0, {
+    error: "event_type_required",
+    path: ["eventTypes"],
+  });
 export type HallInput = z.infer<typeof hallSchema>;
 
 export const hallAreaSchema = z.object({

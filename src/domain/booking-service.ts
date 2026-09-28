@@ -79,7 +79,12 @@ async function requestContext(x: Executor, requestId: string, locale: Locale) {
 export async function createBookingRequest(
   db: Database,
   input: BookingRequestInput,
-  opts: { locale: Locale; now?: Date },
+  opts: {
+    locale: Locale;
+    now?: Date;
+    /** The signed-in user making the request, so it shows in their reservations whatever email they typed. */
+    organizerUserId?: string | null;
+  },
 ): Promise<{ id: string; reference: string }> {
   const now = opts.now ?? new Date();
 
@@ -131,6 +136,7 @@ export async function createBookingRequest(
           hallId: hall.id,
           areaId: input.areaId ?? null,
           locale: opts.locale,
+          organizerUserId: opts.organizerUserId ?? null,
           createdAt: now,
           contactName: input.name,
           contactPhone: input.phone,

@@ -58,6 +58,40 @@ describe("checkbox fields accept an absent (unchecked) value", () => {
 });
 
 /**
+ * Regression: a published hall with no event types rendered a booking form
+ * with no event-type choices, so every request failed `invalid_event_type`.
+ */
+describe("hallSchema event types", () => {
+  const hall = (status: string, eventTypes: string[]) =>
+    hallSchema.safeParse({
+      name: { ka: "ტესტი", en: "Test" },
+      description: { ka: "", en: "" },
+      hallType: "conference_hall",
+      price: "100",
+      priceUnit: "day",
+      capacityMin: "1",
+      capacityMax: "10",
+      status,
+      eventTypes,
+    });
+
+  it("rejects publishing a hall with no event types", () => {
+    const result = hall("published", []);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toContainEqual(
+        expect.objectContaining({ path: ["eventTypes"], message: "event_type_required" }),
+      );
+    }
+  });
+
+  it("allows a draft with no event types, and a published hall with one", () => {
+    expect(hall("draft", []).success).toBe(true);
+    expect(hall("published", ["conference"]).success).toBe(true);
+  });
+});
+
+/**
  * Rejecting the host on input is half of the guard; the render sites skip
  * unusable URLs too (see lib/image-hosts.ts), because a row entered before
  * this check would otherwise 500 the hall page.

@@ -58,6 +58,10 @@ export function VenueForm({
   const field = (key: string, fallback?: string) =>
     state.status === "error" ? (state.values?.[key] ?? fallback ?? "") : (fallback ?? "");
   const err = (key: string) => errorText(state.status === "error" ? state.fieldErrors?.[key] : undefined);
+  // An unchecked box is absent from the submission, so after an error "not
+  // echoed" means unchecked — not "fall back to the saved record".
+  const checked = (key: string, fallback: boolean) =>
+    state.status === "error" ? state.values?.[key] === "on" : fallback;
 
   // Also remount once fresh server data for `venue` arrives after a
   // successful save (which can land in a separate render pass from the one
@@ -169,7 +173,7 @@ export function VenueForm({
         <input
           type="checkbox"
           name="verified"
-          defaultChecked={venue?.verified ?? false}
+          defaultChecked={checked("verified", venue?.verified ?? false)}
           className="size-4 rounded border-brown accent-brown"
         />
         {t("verified")}

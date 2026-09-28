@@ -63,6 +63,10 @@ export function HallForm({
   const field = (key: string, fallback?: string) =>
     state.status === "error" ? (state.values?.[key] ?? fallback ?? "") : (fallback ?? "");
   const err = (key: string) => errorText(state.status === "error" ? state.fieldErrors?.[key] : undefined);
+  // An unchecked box is absent from the submission, so after an error "not
+  // echoed" means unchecked — not "fall back to the saved record".
+  const checked = (key: string, fallback: boolean) =>
+    state.status === "error" ? state.values?.[key] === "on" : fallback;
 
   // Also remount once fresh server data for `hall` arrives after a successful
   // save (which can land in a separate render pass from the one above), so
@@ -159,6 +163,7 @@ export function HallForm({
         name="eventTypes"
         options={eventTypes.map((e) => ({ value: e.slug, label: e.name }))}
         defaultValue={state.status === "error" ? (state.values?.eventTypes ?? "").split(",").filter(Boolean) : selectedEventTypes}
+        error={err("eventTypes")}
       />
       <CheckboxGroup
         legend={t("amenities")}
@@ -169,11 +174,11 @@ export function HallForm({
 
       <div className="flex flex-wrap gap-5">
         <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
-          <input type="checkbox" name="indoor" defaultChecked={hall?.indoor ?? true} className="size-4 rounded border-brown accent-brown" />
+          <input type="checkbox" name="indoor" defaultChecked={checked("indoor", hall?.indoor ?? true)} className="size-4 rounded border-brown accent-brown" />
           {t("indoor")}
         </label>
         <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
-          <input type="checkbox" name="featured" defaultChecked={hall?.featured ?? false} className="size-4 rounded border-brown accent-brown" />
+          <input type="checkbox" name="featured" defaultChecked={checked("featured", hall?.featured ?? false)} className="size-4 rounded border-brown accent-brown" />
           {t("featured")}
         </label>
       </div>

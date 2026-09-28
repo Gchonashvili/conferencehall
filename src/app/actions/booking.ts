@@ -7,6 +7,7 @@ import { BookingError, createBookingRequest } from "@/domain/booking-service";
 import { todayInTbilisi } from "@/lib/dates";
 import { drainOutboxSoon } from "@/lib/drain";
 import { echoValues, type FormState } from "@/lib/form-state";
+import { getSession } from "@/lib/session";
 import { verifyTurnstile } from "@/lib/turnstile";
 
 /** Booking error codes that belong next to a specific field. */
@@ -35,7 +36,13 @@ export async function submitBookingRequest(_prev: FormState, formData: FormData)
   if (!parsed.success) return { status: "error", fieldErrors: fieldErrors(parsed.error), values };
 
   try {
-    const { reference } = await createBookingRequest(await getDb(), parsed.data, { locale });
+    // Booking doesn't require an account, but a signed-in user's request is
+    // linked to them so it appears in "My reservations" even under another email.
+    const session = await getSession();
+    const { reference } = await createBookingRequest(await getDb(), parsed.data, {
+      locale,
+      organizerUserId: session?.user.id,
+    });
     after(drainOutboxSoon);
     return { status: "success", reference, email: parsed.data.email };
   } catch (err) {
