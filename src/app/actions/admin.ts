@@ -24,7 +24,8 @@ import {
   updateVenue,
 } from "@/domain/admin-service";
 import { BookingError, cancelRequest } from "@/domain/booking-service";
-import { setInquiryStatus } from "@/domain/inquiry-service";
+import { leadUpdateSchema, noteSchema } from "@/domain/crm-input";
+import { addNote, CrmError, updateLead } from "@/domain/crm-service";
 import { getDb } from "@/db";
 import { redirect } from "@/i18n/navigation";
 import { drainOutboxSoon } from "@/lib/drain";
@@ -253,14 +254,52 @@ export async function cancelRequestAction(_prev: FormState, formData: FormData):
 }
 
 // ---------------------------------------------------------------- leads
-export async function markInquiryStatusAction(formData: FormData): Promise<void> {
-  const locale = localeOf(String(formData.get("locale") ?? ""));
-  await requireUser(locale, ["admin"]);
-  const id = uuid(formData.get("inquiryId"));
-  const status = formData.get("status") === "handled" ? "handled" : "new";
-  if (id.success) {
-    await setInquiryStatus(await getDb(), id.data, status);
-    revalidatePath(`/${locale}/admin/leads`, "layout");
+export async function updateLeadAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const values = echoValues(formData);
+  const locale = localeOf(values.locale);
+  const me = await requireUser(locale, ["admin"]);
+
+  const leadId = uuid(values.leadId);
+  if (!leadId.success) return { status: "error", formError: "not_found", values };
+
+  const parsed = leadUpdateSchema.safeParse(values);
+  if (!parsed.success) return { status: "error", fieldErrors: fieldErrors(parsed.error), values };
+
+  try {
+    await updateLead(await getDb(), leadId.data, parsed.data, { actorUserId: me.id });
+  } catch (err) {
+    if (err instanceof CrmError) {
+      return err.code === "invalid_owner"
+        ? { status: "error", fieldErrors: { ownerUserId: err.code }, values }
+        : { status: "error", formError: err.code, values };
+    }
+    console.error("[admin] update lead failed", err);
+    return { status: "error", formError: "generic", values };
   }
-  return redirect({ href: "/admin/leads", locale });
+
+  revalidatePath(`/${locale}/admin`, "layout");
+  return { status: "success" };
+}
+
+export async function addLeadNoteAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const values = echoValues(formData);
+  const locale = localeOf(values.locale);
+  const me = await requireUser(locale, ["admin"]);
+
+  const leadId = uuid(values.leadId);
+  if (!leadId.success) return { status: "error", formError: "not_found", values };
+
+  const parsed = noteSchema.safeParse(values);
+  if (!parsed.success) return { status: "error", fieldErrors: fieldErrors(parsed.error), values };
+
+  try {
+    await addNote(await getDb(), { entityType: "inquiry", entityId: leadId.data, body: parsed.data.body, authorUserId: me.id });
+  } catch (err) {
+    if (err instanceof CrmError) return { status: "error", formError: err.code, values };
+    console.error("[admin] add note failed", err);
+    return { status: "error", formError: "generic", values };
+  }
+
+  revalidatePath(`/${locale}/admin/leads/${leadId.data}`);
+  return { status: "success" };
 }

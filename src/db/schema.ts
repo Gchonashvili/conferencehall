@@ -60,7 +60,11 @@ export const paymentStatus = pgEnum("payment_status", ["pending", "succeeded", "
 export const outboxStatus = pgEnum("outbox_status", ["pending", "sent", "failed", "dead"]);
 export const notificationChannel = pgEnum("notification_channel", ["whatsapp", "email"]);
 export const inquiryKind = pgEnum("inquiry_kind", ["contact", "brief", "venue"]);
-export const inquiryStatus = pgEnum("inquiry_status", ["new", "handled"]);
+/** Lead pipeline in the admin panel: new → contacted → offered (halls suggested) → won / lost. */
+export const inquiryStatus = pgEnum("inquiry_status", ["new", "contacted", "offered", "won", "lost"]);
+export const noteEntity = pgEnum("note_entity", ["inquiry", "booking_request", "venue"]);
+/** `note` is free text; the others are automatic entries recording a change (the new value is in `body`). */
+export const noteKind = pgEnum("note_kind", ["note", "stage", "owner", "follow_up"]);
 
 // ------------------------------------------------------------ reference
 export const cities = pgTable("cities", {
@@ -332,7 +336,37 @@ export const inquiries = pgTable(
     guests: integer("guests"),
     eventDate: date("event_date", { mode: "string" }),
     status: inquiryStatus("status").notNull().default("new"),
+    /** Team member (an admin) handling this lead. */
+    ownerUserId: text("owner_user_id").references(() => user.id, { onDelete: "set null" }),
+    /** Day to get back to the lead (a calendar day in Georgia). */
+    followUpOn: date("follow_up_on", { mode: "string" }),
+    /** Why a lead was lost; only kept while the stage is `lost`. */
+    lostReason: text("lost_reason"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index("inquiries_status_idx").on(t.status, t.createdAt),
+    index("inquiries_owner_idx").on(t.ownerUserId),
+  ],
+);
+
+/**
+ * The team's internal notes, shared by leads, booking requests and venues
+ * (`entityType` + `entityId`, no foreign key so one table serves all three).
+ * Changes of stage, owner and follow-up date are written here too, which
+ * gives each record a simple activity timeline.
+ */
+export const adminNotes = pgTable(
+  "admin_notes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    entityType: noteEntity("entity_type").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    kind: noteKind("kind").notNull().default("note"),
+    body: text("body").notNull(),
+    authorUserId: text("author_user_id").references(() => user.id, { onDelete: "set null" }),
     createdAt: createdAt(),
   },
-  (t) => [index("inquiries_status_idx").on(t.status, t.createdAt)],
+  (t) => [index("admin_notes_entity_idx").on(t.entityType, t.entityId, t.createdAt)],
 );
