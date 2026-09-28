@@ -1,0 +1,39 @@
+/*
+ * The admin panel's look: white and light-gray surfaces, hairline borders,
+ * dark buttons, and the brand navy kept for links and the active menu item.
+ *
+ * It works by re-pointing the site's existing color tokens inside `.admin-theme`
+ * (set on the admin shell), so every card, chip, field and button in the
+ * admin picks it up without changing its markup, and the public site is
+ * untouched. Kept out of globals.css on purpose: src/lib/design-tokens.ts
+ * reads the *public* palette from that file for the contrast tests and the
+ * /design page. The admin pairs are checked in src/lib/admin-theme.test.ts.
+ */
+.admin-theme {
+  --color-brown: #111827; /* text, and hover of dark buttons */
+  --color-blush: #ffffff; /* cards */
+  --color-peach: #f3f4f6; /* pills, table headers, hover fills */
+  --color-field: #f3f4f6; /* inputs */
+  --color-coral: #003b95; /* links and icons: the brand navy */
+  --color-coral-strong: #1f2937; /* primary buttons and active pills: dark */
+  --shadow-card: 0 0 0 1px var(--color-line); /* a hairline border rather than a shadow */
+
+  /* `color` on <html> was resolved against the public palette; resolve it again here. */
+  color: var(--color-brown);
+}
+
+/* Form feedback in the admin uses real status colors, not the public site's navy tints. */
+.admin-theme [role="alert"] {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+.admin-theme [role="alert"] svg {
+  color: var(--color-danger);
+}
+.admin-theme [role="status"] {
+  border-color: var(--color-ok);
+  background: var(--color-ok-soft);
+}
+.admin-theme [role="status"] svg {
+  color: var(--color-ok);
+}

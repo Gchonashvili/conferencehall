@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { cancelRequestAction } from "@/app/actions/admin";
 import { CancelRequestForm } from "@/components/admin/cancel-request-form";
-import { Chip } from "@/components/ui/chip";
+import { StatusPill, requestTone } from "@/components/admin/ui";
 import { getDb } from "@/db";
 import { getRequestForAdmin } from "@/db/queries/requests";
 import { canTransition } from "@/domain/booking";
@@ -19,7 +19,7 @@ export const metadata: Metadata = { title: "Request", robots: { index: false } }
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-xs font-semibold text-coral-strong">{label}</dt>
+      <dt className="text-xs font-semibold text-muted">{label}</dt>
       <dd className="text-base break-words">{children}</dd>
     </div>
   );
@@ -43,14 +43,14 @@ export default async function AdminRequestDetailPage({ params }: { params: Promi
   const timeLabels = { morning: tBooking("times.morning"), afternoon: tBooking("times.afternoon"), evening: tBooking("times.evening"), full_day: tBooking("times.fullDay") };
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <Link href="/admin/requests" className="text-sm underline underline-offset-4">
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <Link href="/admin/requests" className="text-sm text-coral underline underline-offset-4">
         ← {t("back")}
       </Link>
 
       <div className="mt-4 mb-8 flex flex-wrap items-center gap-3">
-        <h1 className="text-3xl font-semibold md:text-4xl">{r.reference}</h1>
-        <Chip>{tRes(`status.${r.status}`)}</Chip>
+        <h1 className="text-2xl font-semibold md:text-3xl">{r.reference}</h1>
+        <StatusPill tone={requestTone(r.status)}>{tRes(`status.${r.status}`)}</StatusPill>
       </div>
 
       <dl className="grid gap-x-8 gap-y-4 rounded-card bg-blush p-6 shadow-card sm:grid-cols-2 lg:grid-cols-3">
@@ -81,7 +81,7 @@ export default async function AdminRequestDetailPage({ params }: { params: Promi
         {canCancel ? (
           <CancelRequestForm requestId={r.id} locale={locale} action={cancelRequestAction} />
         ) : (
-          <p className="text-sm opacity-80">{t("noAction")}</p>
+          <p className="text-sm text-muted">{t("noAction")}</p>
         )}
       </div>
     </section>

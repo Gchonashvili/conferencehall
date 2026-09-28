@@ -1,9 +1,9 @@
-import { AlertTriangle, MessageCircle, Phone } from "lucide-react";
+import { MessageCircle, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
+import { PageHeader, Panel, SectionTitle, StatCard, Trend } from "@/components/admin/ui";
 import { SubscriptionBadge } from "@/components/admin/subscription-badge";
-import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
 import { getDb } from "@/db";
 import { acceptanceRate, getMoney, getPipeline, getQuality, getTodo, type QualityIssue } from "@/db/queries/dashboard";
@@ -19,11 +19,11 @@ export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 
 function Card({ title, hint, href, viewAll, children }: { title: string; hint?: string; href?: string; viewAll?: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col rounded-card bg-blush p-5 shadow-card">
+    <Panel className="flex flex-col">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
           <h3 className="font-semibold">{title}</h3>
-          {hint ? <p className="text-xs opacity-70">{hint}</p> : null}
+          {hint ? <p className="text-xs text-muted">{hint}</p> : null}
         </div>
         {href && viewAll ? (
           <Link href={href} className="shrink-0 text-sm text-coral underline-offset-4 hover:underline">
@@ -32,17 +32,7 @@ function Card({ title, hint, href, viewAll, children }: { title: string; hint?: 
         ) : null}
       </div>
       {children}
-    </div>
-  );
-}
-
-function Stat({ value, label, sub }: { value: ReactNode; label: string; sub?: string }) {
-  return (
-    <div className="rounded-card bg-blush p-4 shadow-card">
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="mt-1 text-sm">{label}</p>
-      {sub ? <p className="mt-0.5 text-xs opacity-70">{sub}</p> : null}
-    </div>
+    </Panel>
   );
 }
 
@@ -50,8 +40,9 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
   const locale = await resolveLocale(params);
   const me = await requireUser(locale, ["admin"]);
   const now = new Date();
-  const [t, tLeads, tSubs, db] = await Promise.all([
+  const [t, tNav, tLeads, tSubs, db] = await Promise.all([
     getTranslations("admin.home"),
+    getTranslations("admin.nav"),
     getTranslations("admin.leads"),
     getTranslations("admin.subscriptions"),
     getDb(),
@@ -65,7 +56,7 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
 
   const { current: cur, previous: prev } = pipeline;
   const rate = (r: number | null) => (r === null ? "—" : `${r}%`);
-  const empty = <p className="text-sm opacity-70">{t("allClear")}</p>;
+  const empty = <p className="text-sm text-muted">{t("allClear")}</p>;
 
   const issueList = (label: string, items: QualityIssue[], hrefFor: (id: string) => string) =>
     items.length === 0 ? null : (
@@ -76,12 +67,12 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
         <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm">
           {items.slice(0, 6).map((i) => (
             <li key={i.id}>
-              <Link href={hrefFor(i.id)} className="underline underline-offset-4">
+              <Link href={hrefFor(i.id)} className="text-coral underline underline-offset-4">
                 {i.name}
               </Link>
             </li>
           ))}
-          {items.length > 6 ? <li className="opacity-70">{t("more", { count: items.length - 6 })}</li> : null}
+          {items.length > 6 ? <li className="text-muted">{t("more", { count: items.length - 6 })}</li> : null}
         </ul>
       </div>
     );
@@ -93,45 +84,52 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
   ].filter(Boolean);
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <h1 className="mb-4 text-3xl font-semibold md:text-4xl">{t("title")}</h1>
-      <nav aria-label={t("title")} className="mb-8 flex flex-wrap gap-3">
-        <Button asChild size="sm">
-          <Link href="/admin/leads">{t("viewLeads")}</Link>
-        </Button>
-        <Button asChild size="sm" variant="outline">
-          <Link href="/admin/requests">{t("viewRequests")}</Link>
-        </Button>
-        <Button asChild size="sm" variant="outline">
-          <Link href="/admin/subscriptions">{t("viewSubscriptions")}</Link>
-        </Button>
-        <Button asChild size="sm" variant="outline">
-          <Link href="/admin/venues">{t("viewVenues")}</Link>
-        </Button>
-        <Button asChild size="sm" variant="outline">
-          <Link href="/admin/halls">{t("viewHalls")}</Link>
-        </Button>
-      </nav>
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <PageHeader title={tNav("dashboard")} />
 
       {quality.failedNotifications > 0 ? (
         <Notice tone="error" className="mb-8">
-          <AlertTriangle aria-hidden className="mr-1 inline size-4" />
           {t("failedNotifications", { count: quality.failedNotifications })}
         </Notice>
       ) : null}
 
-      {/* 1. To do today */}
-      <h2 className="mb-3 text-xl font-semibold">{t("todoTitle")}</h2>
-      <div className="mb-10 grid gap-4 md:grid-cols-2">
+      {/* 1. Numbers first, as in the reference: the last 7 days, each against the 7 before. */}
+      <SectionTitle hint={t("pipelineHint")}>{t("pipelineTitle")}</SectionTitle>
+      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+        <StatCard label={t("requestsReceived")} value={cur.requestsCreated} trend={<Trend current={cur.requestsCreated} previous={prev.requestsCreated} />} />
+        <StatCard label={t("accepted")} value={cur.accepted} trend={<Trend current={cur.accepted} previous={prev.accepted} />} />
+        <StatCard
+          label={`${t("declined")} / ${t("expired")}`}
+          value={cur.declined + cur.expired}
+          trend={<Trend current={cur.declined + cur.expired} previous={prev.declined + prev.expired} goodWhen="down" />}
+        />
+        <StatCard label={t("acceptanceRate")} value={rate(acceptanceRate(cur))} hint={t("previous", { value: rate(acceptanceRate(prev)) })} />
+        <StatCard label={t("leadsNew")} value={cur.leadsNew} trend={<Trend current={cur.leadsNew} previous={prev.leadsNew} />} />
+        <StatCard label={t("leadsWon")} value={cur.leadsWon} trend={<Trend current={cur.leadsWon} previous={prev.leadsWon} />} />
+        <StatCard label={t("leadsLost")} value={cur.leadsLost} trend={<Trend current={cur.leadsLost} previous={prev.leadsLost} goodWhen="down" />} />
+      </div>
+
+      {/* 2. Money */}
+      <SectionTitle>{t("moneyTitle")}</SectionTitle>
+      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <StatCard label={t("activeSubscriptions")} value={money.activeSubscriptions} />
+        <StatCard label={t("monthlyRecurring")} value={formatGel(money.monthlyRecurringTetri, locale)} />
+        <StatCard label={t("collectedThisMonth")} value={formatGel(money.collectedThisMonthTetri, locale)} />
+        <StatCard label={t("overdueSubscriptions")} value={money.overdue} />
+      </div>
+
+      {/* 3. To do today */}
+      <SectionTitle>{t("todoTitle")}</SectionTitle>
+      <div className="mb-8 grid gap-4 lg:grid-cols-2">
         <Card title={`${t("todoUnassigned")} · ${todo.unassignedLeadsTotal}`} href="/admin/leads?status=new&owner=unassigned" viewAll={t("viewAll")}>
           {todo.unassignedLeads.length === 0 ? empty : null}
           <ul className="flex flex-col gap-1.5 text-sm">
             {todo.unassignedLeads.map((l) => (
               <li key={l.id} className="flex justify-between gap-3">
-                <Link href={`/admin/leads/${l.id}`} className="underline underline-offset-4">
+                <Link href={`/admin/leads/${l.id}`} className="font-medium underline-offset-4 hover:underline">
                   {l.name}
                 </Link>
-                <span className="shrink-0 opacity-70">
+                <span className="shrink-0 text-muted">
                   {tLeads(`kind_${l.kind}`)} · {formatDateTime(l.createdAt, locale)}
                 </span>
               </li>
@@ -144,10 +142,10 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
           <ul className="flex flex-col gap-1.5 text-sm">
             {todo.followUps.map((f) => (
               <li key={f.id} className="flex justify-between gap-3">
-                <Link href={`/admin/leads/${f.id}`} className="underline underline-offset-4">
+                <Link href={`/admin/leads/${f.id}`} className="font-medium underline-offset-4 hover:underline">
                   {f.name}
                 </Link>
-                <span className="shrink-0 opacity-70">
+                <span className="shrink-0 text-muted">
                   {f.mine ? t("you") : (f.ownerName ?? tLeads("noOwner"))} · {t("due", { date: formatDate(f.followUpOn, locale) })}
                 </span>
               </li>
@@ -169,7 +167,7 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
                     </Link>{" "}
                     · {r.venueName} · {r.hallName}
                   </span>
-                  <span className="flex shrink-0 items-center gap-3 opacity-80">
+                  <span className="flex shrink-0 items-center gap-3 text-muted">
                     {t("expires", { date: formatDateTime(r.expiresAt, locale) })}
                     {r.venuePhone ? (
                       <a href={`tel:${r.venuePhone}`} aria-label={tLeads("call")} className="text-coral">
@@ -193,11 +191,11 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
           <ul className="flex flex-col gap-1.5 text-sm">
             {todo.subscriptions.slice(0, 8).map((s) => (
               <li key={s.venueId} className="flex items-center justify-between gap-3">
-                <Link href={`/admin/venues/${s.venueId}#subscription`} className="underline underline-offset-4">
+                <Link href={`/admin/venues/${s.venueId}#subscription`} className="font-medium underline-offset-4 hover:underline">
                   {s.venueName}
                 </Link>
                 <span className="flex shrink-0 items-center gap-2">
-                  {s.subscriptionUntil ? <span className="opacity-70">{formatDate(s.subscriptionUntil, locale)}</span> : null}
+                  {s.subscriptionUntil ? <span className="text-muted">{formatDate(s.subscriptionUntil, locale)}</span> : null}
                   <SubscriptionBadge health={s.health} label={tSubs(`health_${s.health}`)} />
                 </span>
               </li>
@@ -206,32 +204,9 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
         </Card>
       </div>
 
-      {/* 2. Pipeline */}
-      <h2 className="text-xl font-semibold">{t("pipelineTitle")}</h2>
-      <p className="mb-3 text-sm opacity-70">{t("pipelineHint")}</p>
-      <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Stat value={cur.requestsCreated} label={t("requestsReceived")} sub={t("previous", { value: prev.requestsCreated })} />
-        <Stat value={cur.accepted} label={t("accepted")} sub={t("previous", { value: prev.accepted })} />
-        <Stat value={cur.declined + cur.expired} label={`${t("declined")} / ${t("expired")}`} sub={t("previous", { value: prev.declined + prev.expired })} />
-        <Stat value={rate(acceptanceRate(cur))} label={t("acceptanceRate")} sub={t("previous", { value: rate(acceptanceRate(prev)) })} />
-        <Stat value={cur.leadsNew} label={t("leadsNew")} sub={t("previous", { value: prev.leadsNew })} />
-        <Stat value={cur.leadsWon} label={t("leadsWon")} sub={t("previous", { value: prev.leadsWon })} />
-        <Stat value={cur.leadsLost} label={t("leadsLost")} sub={t("previous", { value: prev.leadsLost })} />
-      </div>
-
-      {/* 3. Money */}
-      <h2 className="mb-3 text-xl font-semibold">{t("moneyTitle")}</h2>
-      <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Stat value={money.activeSubscriptions} label={t("activeSubscriptions")} />
-        <Stat value={formatGel(money.monthlyRecurringTetri, locale)} label={t("monthlyRecurring")} />
-        <Stat value={formatGel(money.collectedThisMonthTetri, locale)} label={t("collectedThisMonth")} />
-        <Stat value={money.overdue} label={t("overdueSubscriptions")} />
-      </div>
-
       {/* 4. Listing quality */}
-      <h2 className="text-xl font-semibold">{t("qualityTitle")}</h2>
-      <p className="mb-3 text-sm opacity-70">{t("qualityHint")}</p>
-      <div className="flex flex-col gap-4 rounded-card bg-blush p-5 shadow-card">{qualityIssues.length === 0 ? empty : qualityIssues}</div>
+      <SectionTitle hint={t("qualityHint")}>{t("qualityTitle")}</SectionTitle>
+      <Panel className="flex flex-col gap-4">{qualityIssues.length === 0 ? empty : qualityIssues}</Panel>
     </section>
   );
 }

@@ -17,8 +17,8 @@ export default async function NewVenuePage({ params }: { params: Promise<{ local
   const cities = await listCities(db, locale);
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <h1 className="mb-6 text-3xl font-semibold md:text-4xl">{t("createTitle")}</h1>
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <h1 className="mb-6 text-2xl font-semibold md:text-3xl">{t("createTitle")}</h1>
       <div className="max-w-2xl">
         <VenueForm locale={locale} action={createVenueAction} cities={cities} />
       </div>

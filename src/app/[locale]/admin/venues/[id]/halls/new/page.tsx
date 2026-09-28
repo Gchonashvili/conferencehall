@@ -24,9 +24,9 @@ export default async function NewHallPage({ params }: { params: Promise<{ locale
   const [eventTypes, amenities] = await Promise.all([listEventTypes(db, locale), listAmenities(db, locale)]);
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <h1 className="mb-1 text-3xl font-semibold md:text-4xl">{t("createTitle")}</h1>
-      <p className="mb-6 text-sm opacity-80">{venueResult.venue.name.en}</p>
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <h1 className="mb-1 text-2xl font-semibold md:text-3xl">{t("createTitle")}</h1>
+      <p className="mb-6 text-sm text-muted">{venueResult.venue.name.en}</p>
       <div className="max-w-2xl">
         <HallForm locale={locale} action={createHallAction} venueId={id} eventTypes={eventTypes} amenities={amenities} />
       </div>

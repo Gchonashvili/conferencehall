@@ -48,7 +48,7 @@ export function HallAreas({
               <p className="font-semibold">
                 {a.name.ka} / {a.name.en}
               </p>
-              <p className="opacity-80">
+              <p className="text-muted">
                 {[
                   a.capacityTheatre != null && `${t("theatre")}: ${a.capacityTheatre}`,
                   a.capacityClassroom != null && `${t("classroom")}: ${a.capacityClassroom}`,

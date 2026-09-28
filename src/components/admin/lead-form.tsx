@@ -90,7 +90,7 @@ export function LeadForm({
           defaultValue={field("lostReason", lead.lostReason)}
           error={err("lostReason")}
         />
-        <p className="mt-1 text-xs opacity-70">{t("lostReasonHint")}</p>
+        <p className="mt-1 text-xs text-muted">{t("lostReasonHint")}</p>
       </div>
 
       <Button type="submit" disabled={pending} className="self-start">

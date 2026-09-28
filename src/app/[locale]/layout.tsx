@@ -5,6 +5,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Footer } from "@/components/site/footer";
 import { Nav } from "@/components/site/nav";
+import { SiteChrome } from "@/components/site/site-chrome";
 import { routing } from "@/i18n/routing";
 import { env } from "@/env";
 import { siteConfig } from "@/lib/site";
@@ -56,11 +57,11 @@ export default async function LocaleLayout({
             {t("skipToContent")}
           </a>
           <div className="flex min-h-dvh flex-col bg-panel">
-            <Nav />
-            <main id="main" className="flex-1">
-              {children}
-            </main>
-            <Footer />
+            <SiteChrome header={<Nav />} footer={<Footer />}>
+              <main id="main" className="flex-1">
+                {children}
+              </main>
+            </SiteChrome>
           </div>
         </NextIntlClientProvider>
       </body>

@@ -48,11 +48,11 @@ export default async function EditVenuePage({ params }: { params: Promise<{ loca
   const period = nextPeriod(venue, today);
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <Link href="/admin/venues" className="mb-4 inline-block text-sm underline underline-offset-4">
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <Link href="/admin/venues" className="mb-4 inline-block text-sm text-coral underline underline-offset-4">
         {t("editTitle")}
       </Link>
-      <h1 className="mb-6 text-3xl font-semibold md:text-4xl">{venue.name.en}</h1>
+      <h1 className="mb-6 text-2xl font-semibold md:text-3xl">{venue.name.en}</h1>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="max-w-2xl">
@@ -138,19 +138,19 @@ export default async function EditVenuePage({ params }: { params: Promise<{ loca
 
           <div>
             <h3 className="mb-3 text-lg font-semibold">{tSubs("history")}</h3>
-            {payments.length === 0 ? <p className="text-sm opacity-80">{tSubs("noPayments")}</p> : null}
+            {payments.length === 0 ? <p className="text-sm text-muted">{tSubs("noPayments")}</p> : null}
             <ul className="flex flex-col gap-2">
               {payments.map((p) => (
                 <li key={p.id} className="rounded-lg bg-blush px-4 py-3 text-sm shadow-card">
                   <p className="font-semibold">
                     {formatGel(p.amountTetri, locale)} · {formatDate(p.paidOn, locale)}
                   </p>
-                  <p className="opacity-80">
+                  <p className="text-muted">
                     {formatDate(p.periodStart, locale)} – {formatDate(p.periodEnd, locale)}
                     {p.invoiceNo ? ` · ${tSubs("invoiceNo")} ${p.invoiceNo}` : ""}
                   </p>
                   {p.note ? <p className="mt-1">{p.note}</p> : null}
-                  {p.recordedBy ? <p className="mt-1 text-xs opacity-70">{tSubs("recordedBy", { name: p.recordedBy })}</p> : null}
+                  {p.recordedBy ? <p className="mt-1 text-xs text-muted">{tSubs("recordedBy", { name: p.recordedBy })}</p> : null}
                 </li>
               ))}
             </ul>

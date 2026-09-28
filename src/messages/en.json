@@ -397,7 +397,7 @@
       "leadsNew": "New leads",
       "leadsWon": "Leads won",
       "leadsLost": "Leads lost",
-      "previous": "{value} the week before",
+      "previous": "Week before: {value}",
       "moneyTitle": "Money",
       "activeSubscriptions": "Active subscriptions",
       "monthlyRecurring": "Monthly recurring (est.)",
@@ -418,7 +418,11 @@
       "verified": "Verified",
       "unverified": "Unverified",
       "hallCount": "{count} halls",
-      "back": "All venues"
+      "back": "All venues",
+      "name": "Venue",
+      "city": "City",
+      "halls": "Halls",
+      "statusLabel": "Status"
     },
     "venueForm": {
       "createTitle": "New venue",
@@ -465,7 +469,10 @@
       "all": "All",
       "draft": "Draft",
       "published": "Published",
-      "featured": "Featured"
+      "featured": "Featured",
+      "name": "Hall",
+      "venue": "Venue",
+      "statusLabel": "Status"
     },
     "hallForm": {
       "createTitle": "New hall",
@@ -537,7 +544,10 @@
       "cancelReason": "Cancel reason (optional)",
       "cancel": "Cancel this request",
       "cancelled": "Request cancelled.",
-      "noAction": "No action available for a request in this state."
+      "noAction": "No action available for a request in this state.",
+      "reference": "Reference",
+      "eventDate": "Event date",
+      "statusLabel": "Status"
     },
     "leads": {
       "title": "Leads",
@@ -623,6 +633,15 @@
       "history": "Payment history",
       "noPayments": "No payments logged yet.",
       "recordedBy": "Logged by {name}"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "leads": "Leads",
+      "requests": "Requests",
+      "subscriptions": "Subscriptions",
+      "venues": "Venues",
+      "halls": "Halls",
+      "viewSite": "View site"
     }
   },
   "credits": {

@@ -1,15 +1,9 @@
-import { Chip } from "@/components/ui/chip";
 import type { SubscriptionHealth } from "@/domain/subscriptions";
-import { cn } from "@/lib/utils";
+import { StatusPill, type Tone } from "./ui";
 
-const STYLE: Record<SubscriptionHealth, string> = {
-  overdue: "bg-coral-strong text-white",
-  expiring: "border border-coral-strong bg-panel text-coral-strong",
-  active: "",
-  none: "opacity-70",
-};
+const TONE: Record<SubscriptionHealth, Tone> = { overdue: "danger", expiring: "warn", active: "ok", none: "neutral" };
 
-/** Subscription health as a chip; overdue and expiring stand out. */
+/** Subscription health as a status pill; overdue and expiring stand out. */
 export function SubscriptionBadge({ health, label }: { health: SubscriptionHealth; label: string }) {
-  return <Chip className={cn(STYLE[health])}>{label}</Chip>;
+  return <StatusPill tone={TONE[health]}>{label}</StatusPill>;
 }

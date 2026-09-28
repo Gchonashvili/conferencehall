@@ -35,11 +35,11 @@ export default async function EditHallPage({ params }: { params: Promise<{ local
   const [eventTypes, amenities] = await Promise.all([listEventTypes(db, locale), listAmenities(db, locale)]);
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <Link href={`/admin/venues/${venueId}`} className="mb-4 inline-block text-sm underline underline-offset-4">
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <Link href={`/admin/venues/${venueId}`} className="mb-4 inline-block text-sm text-coral underline underline-offset-4">
         {venueName}
       </Link>
-      <h1 className="mb-6 text-3xl font-semibold md:text-4xl">{hall.name.en}</h1>
+      <h1 className="mb-6 text-2xl font-semibold md:text-3xl">{hall.name.en}</h1>
 
       <div className="flex max-w-2xl flex-col gap-8">
         <HallForm

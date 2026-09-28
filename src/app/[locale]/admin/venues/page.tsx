@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { EmptyRow, PageHeader, RowLink, StatusPill, Table, Td, Th, Tr, publishTone } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
 import { getDb } from "@/db";
 import { listAllVenues } from "@/db/queries/admin";
 import { Link } from "@/i18n/navigation";
@@ -15,37 +15,52 @@ export const metadata: Metadata = { title: "Venues", robots: { index: false } };
 export default async function AdminVenuesPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await resolveLocale(params);
   await requireUser(locale, ["admin"]);
-  const [t, db] = await Promise.all([getTranslations("admin.venues"), getDb()]);
+  const [t, tForm, db] = await Promise.all([getTranslations("admin.venues"), getTranslations("admin.venueForm"), getDb()]);
   const venues = await listAllVenues(db);
+  const statusLabel = { draft: tForm("statusDraft"), active: tForm("statusActive"), suspended: tForm("statusSuspended") };
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-semibold md:text-4xl">{t("title")}</h1>
-        <Button asChild>
-          <Link href="/admin/venues/new">{t("newVenue")}</Link>
-        </Button>
-      </div>
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <PageHeader
+        title={t("title")}
+        actions={
+          <Button asChild>
+            <Link href="/admin/venues/new">{t("newVenue")}</Link>
+          </Button>
+        }
+      />
 
-      {venues.length === 0 ? <p>{t("empty")}</p> : null}
-      <ul className="flex flex-col gap-3">
-        {venues.map((v) => (
-          <li key={v.id}>
-            <Link href={`/admin/venues/${v.id}`} className="flex flex-wrap items-center justify-between gap-2 rounded-card bg-blush p-4 shadow-card transition-shadow hover:shadow-lg">
-              <div>
-                <p className="font-semibold">{pickText(v.name, locale)}</p>
-                <p className="text-sm opacity-80">
-                  {v.citySlug} · {t("hallCount", { count: v.hallCount })}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Chip>{v.status}</Chip>
-                <Chip>{t(v.verified ? "verified" : "unverified")}</Chip>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {venues.length === 0 ? (
+        <EmptyRow>{t("empty")}</EmptyRow>
+      ) : (
+        <Table minWidth={640}>
+          <thead>
+            <tr>
+              <Th>{t("name")}</Th>
+              <Th>{t("city")}</Th>
+              <Th>{t("halls")}</Th>
+              <Th>{t("statusLabel")}</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {venues.map((v) => (
+              <Tr key={v.id}>
+                <Td>
+                  <RowLink href={`/admin/venues/${v.id}`}>{pickText(v.name, locale)}</RowLink>
+                </Td>
+                <Td className="text-muted">{v.citySlug}</Td>
+                <Td>{v.hallCount}</Td>
+                <Td>
+                  <span className="flex flex-wrap gap-1.5">
+                    <StatusPill tone={publishTone(v.status)}>{statusLabel[v.status]}</StatusPill>
+                    <StatusPill tone={v.verified ? "ok" : "warn"}>{t(v.verified ? "verified" : "unverified")}</StatusPill>
+                  </span>
+                </Td>
+              </Tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
     </section>
   );
 }

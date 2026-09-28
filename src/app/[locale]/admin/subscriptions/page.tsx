@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { SubscriptionBadge } from "@/components/admin/subscription-badge";
-import { Chip } from "@/components/ui/chip";
+import { EmptyRow, FilterTabs, PageHeader, RowLink, StatusPill, Table, Td, Th, Tr, publishTone } from "@/components/admin/ui";
 import { getDb } from "@/db";
 import { listSubscriptions } from "@/db/queries/subscriptions";
 import { subscriptionHealth, type SubscriptionHealth } from "@/domain/subscriptions";
-import { Link } from "@/i18n/navigation";
 import { resolveLocale } from "@/i18n/locale";
 import { todayInTbilisi } from "@/lib/dates";
 import { formatDate } from "@/lib/format-date";
 import { formatGel } from "@/lib/money";
 import { requireUser } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Subscriptions", robots: { index: false } };
@@ -40,66 +38,57 @@ export default async function AdminSubscriptionsPage({ params, searchParams }: P
   const rows = show ? all.filter((r) => r.health === show) : all;
 
   const venueStatus = { draft: tVenues("statusDraft"), active: tVenues("statusActive"), suspended: tVenues("statusSuspended") };
-  const pill = (active: boolean) => cn("rounded-full px-4 py-1.5 text-sm", active ? "bg-coral-strong text-white" : "bg-peach");
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <Link href="/admin" className="text-sm underline underline-offset-4">
-        ← {t("back")}
-      </Link>
-      <h1 className="mt-4 mb-2 text-3xl font-semibold md:text-4xl">{t("title")}</h1>
-      <p className="mb-6 max-w-2xl text-sm opacity-80">{t("intro")}</p>
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <PageHeader title={t("title")} subtitle={t("intro")} />
 
-      <div className="mb-6 flex flex-wrap gap-2">
-        <Link href="/admin/subscriptions" className={pill(!show)}>
-          {t("all")} · {all.length}
-        </Link>
-        {FILTERS.map((f) => (
-          <Link key={f} href={`/admin/subscriptions?show=${f}`} className={pill(show === f)}>
-            {t(`health_${f}`)} · {count(f)}
-          </Link>
-        ))}
+      <div className="mb-4">
+        <FilterTabs
+          label={t("title")}
+          tabs={[
+            { label: t("all"), href: "/admin/subscriptions", active: !show, count: all.length },
+            ...FILTERS.map((f) => ({ label: t(`health_${f}`), href: `/admin/subscriptions?show=${f}`, active: show === f, count: count(f) })),
+          ]}
+        />
       </div>
 
-      {rows.length === 0 ? <p>{t("empty")}</p> : null}
-      {rows.length > 0 ? (
-        <div className="overflow-x-auto rounded-card bg-blush shadow-card">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-peach">
-                <th className="p-3 font-semibold">{t("venue")}</th>
-                <th className="p-3 font-semibold">{t("plan")}</th>
-                <th className="p-3 font-semibold">{t("paidUntil")}</th>
-                <th className="p-3 font-semibold">{t("status")}</th>
-                <th className="p-3 font-semibold">{t("lastPayment")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.venueId} className="border-b border-peach last:border-0">
-                  <td className="p-3">
-                    <Link href={`/admin/venues/${r.venueId}#subscription`} className="font-semibold underline-offset-4 hover:underline">
-                      {r.venueName}
-                    </Link>
-                    {r.venueStatus !== "active" ? <Chip className="ml-2">{venueStatus[r.venueStatus]}</Chip> : null}
-                  </td>
-                  <td className="p-3">
-                    {r.plan ? t(`plan_${r.plan}`) : "—"}
-                    {r.planPriceTetri != null ? ` · ${formatGel(r.planPriceTetri, locale)}` : ""}
-                  </td>
-                  <td className="p-3">{r.subscriptionUntil ? formatDate(r.subscriptionUntil, locale) : "—"}</td>
-                  <td className="p-3">
-                    <SubscriptionBadge health={r.health} label={t(`health_${r.health}`)} />
-                  </td>
-                  <td className="p-3">
-                    {r.lastPaidOn ? `${formatDate(r.lastPaidOn, locale)}${r.lastAmountTetri != null ? ` · ${formatGel(r.lastAmountTetri, locale)}` : ""}` : "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
+      {rows.length === 0 ? (
+        <EmptyRow>{t("empty")}</EmptyRow>
+      ) : (
+        <Table minWidth={720}>
+          <thead>
+            <tr>
+              <Th>{t("venue")}</Th>
+              <Th>{t("plan")}</Th>
+              <Th>{t("paidUntil")}</Th>
+              <Th>{t("status")}</Th>
+              <Th>{t("lastPayment")}</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <Tr key={r.venueId}>
+                <Td>
+                  <RowLink href={`/admin/venues/${r.venueId}#subscription`}>{r.venueName}</RowLink>
+                  {r.venueStatus !== "active" ? <StatusPill tone={publishTone(r.venueStatus)} className="ml-2">{venueStatus[r.venueStatus]}</StatusPill> : null}
+                </Td>
+                <Td>
+                  {r.plan ? t(`plan_${r.plan}`) : "—"}
+                  {r.planPriceTetri != null ? <span className="text-muted">{` · ${formatGel(r.planPriceTetri, locale)}`}</span> : null}
+                </Td>
+                <Td>{r.subscriptionUntil ? formatDate(r.subscriptionUntil, locale) : "—"}</Td>
+                <Td>
+                  <SubscriptionBadge health={r.health} label={t(`health_${r.health}`)} />
+                </Td>
+                <Td className="text-muted">
+                  {r.lastPaidOn ? `${formatDate(r.lastPaidOn, locale)}${r.lastAmountTetri != null ? ` · ${formatGel(r.lastAmountTetri, locale)}` : ""}` : "—"}
+                </Td>
+              </Tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
     </section>
   );
 }

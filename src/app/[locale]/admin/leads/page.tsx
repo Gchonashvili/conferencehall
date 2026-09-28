@@ -1,7 +1,7 @@
+import { Search } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
+import { EmptyRow, FilterTabs, PageHeader, RowLink, StatusPill, Table, Td, Th, Tr, leadTone } from "@/components/admin/ui";
 import { getDb } from "@/db";
 import { listCities, listEventTypes } from "@/db/queries/halls";
 import { countInquiriesByStage, listInquiries, type LeadFilters } from "@/db/queries/inquiries";
@@ -52,38 +52,22 @@ export default async function AdminLeadsPage({ params, searchParams }: Props) {
     return qs ? `/admin/leads?${qs}` : "/admin/leads";
   };
   const allCount = Object.values(counts).reduce((a, b) => a + b, 0);
-  const pill = (active: boolean) => cn("rounded-full px-4 py-1.5 text-sm", active ? "bg-coral-strong text-white" : "bg-peach");
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <h1 className="mb-6 text-3xl font-semibold md:text-4xl">{t("title")}</h1>
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <PageHeader title={t("title")} />
 
-      {/* Stage tabs, with how many leads each holds under the current owner/search filters. */}
-      <div className="mb-3 flex flex-wrap gap-2">
-        <Link href={href({ status: undefined })} className={pill(!status)}>
-          {t("all")} · {allCount}
-        </Link>
-        {LEAD_STAGES.map((s) => (
-          <Link key={s} href={href({ status: s })} className={pill(status === s)}>
-            {t(`stage_${s}`)} · {counts[s]}
-          </Link>
-        ))}
-      </div>
-
-      <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div className="flex flex-wrap gap-2 text-sm">
-          {([undefined, "mine", "unassigned"] as const).map((o) => (
-            <Link
-              key={o ?? "everyone"}
-              href={href({ owner: o })}
-              className={cn("underline-offset-4 hover:underline", owner === o ? "font-semibold underline" : "opacity-80")}
-            >
-              {t(o ?? "everyone")}
-            </Link>
-          ))}
-        </div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        {/* Stage tabs, with how many leads each holds under the current owner/search filters. */}
+        <FilterTabs
+          label={t("stage")}
+          tabs={[
+            { label: t("all"), href: href({ status: undefined }), active: !status, count: allCount },
+            ...LEAD_STAGES.map((s) => ({ label: t(`stage_${s}`), href: href({ status: s }), active: status === s, count: counts[s] })),
+          ]}
+        />
         {/* Plain GET form: keeps the stage and owner filters, resets to page 1. */}
-        <form action={`/${locale}/admin/leads`} method="get" className="flex gap-2">
+        <form action={`/${locale}/admin/leads`} method="get" role="search" className="relative w-full sm:w-72">
           {status ? <input type="hidden" name="status" value={status} /> : null}
           {owner ? <input type="hidden" name="owner" value={owner} /> : null}
           <label htmlFor="lead-search" className="sr-only">
@@ -96,70 +80,95 @@ export default async function AdminLeadsPage({ params, searchParams }: Props) {
             defaultValue={q}
             maxLength={100}
             placeholder={t("search")}
-            className="w-64 max-w-full rounded-lg bg-field px-3 py-2 text-sm focus:outline-none"
+            className="w-full rounded-full border border-line bg-panel py-2 pr-10 pl-4 text-sm focus:border-brown focus:outline-none"
           />
-          <Button type="submit" variant="outline" size="sm">
-            {t("searchButton")}
-          </Button>
+          <button type="submit" aria-label={t("searchButton")} className="absolute inset-y-0 right-3 cursor-pointer text-muted hover:text-brown">
+            <Search aria-hidden className="size-4" />
+          </button>
         </form>
       </div>
 
-      {result.items.length === 0 ? <p>{t("empty")}</p> : null}
-      <ul className="flex flex-col gap-3">
-        {result.items.map((r) => {
-          const overdue = !!r.followUpOn && r.followUpOn <= today && !CLOSED_STAGES.includes(r.status);
-          const brief = [
-            r.citySlug ? (cityName.get(r.citySlug) ?? r.citySlug) : null,
-            r.eventType ? (eventTypeName.get(r.eventType) ?? r.eventType) : null,
-            r.guests ? t("guests", { count: r.guests }) : null,
-            r.eventDate ? formatDate(r.eventDate, locale) : null,
-          ].filter(Boolean);
-          return (
-            <li key={r.id} className={cn("relative rounded-card bg-blush p-4 shadow-card", overdue && "ring-2 ring-coral-strong")}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link href={`/admin/leads/${r.id}`} className="font-semibold underline-offset-4 after:absolute after:inset-0 hover:underline">
-                      {r.name}
-                    </Link>
-                    <Chip>{t(`kind_${r.kind}`)}</Chip>
-                    <Chip>{t(`stage_${r.status}`)}</Chip>
-                  </div>
-                  <p className="mt-1 text-sm opacity-80">
-                    {r.email}
-                    {r.phone ? ` · ${r.phone}` : ""}
-                  </p>
-                  {brief.length > 0 ? <p className="mt-1 text-sm">{brief.join(" · ")}</p> : null}
-                  {r.message ? <p className="mt-2 line-clamp-2 text-sm">{r.message}</p> : null}
-                </div>
-                <div className="shrink-0 text-right text-xs">
-                  <p>
-                    {t("owner")}: <span className="font-semibold">{r.ownerName ?? t("noOwner")}</span>
-                  </p>
-                  {r.followUpOn ? (
-                    <p className={cn("mt-1", overdue && "font-semibold text-coral-strong")}>
-                      {t("followUp")}: {formatDate(r.followUpOn, locale)}
-                      {overdue ? ` · ${t("overdue")}` : ""}
+      <div className="mb-4 flex flex-wrap gap-4 text-sm">
+        {([undefined, "mine", "unassigned"] as const).map((o) => (
+          <Link
+            key={o ?? "everyone"}
+            href={href({ owner: o })}
+            aria-current={owner === o ? "true" : undefined}
+            className={cn("underline-offset-4 hover:underline", owner === o ? "font-semibold text-coral underline" : "text-muted")}
+          >
+            {t(o ?? "everyone")}
+          </Link>
+        ))}
+      </div>
+
+      {result.items.length === 0 ? (
+        <EmptyRow>{t("empty")}</EmptyRow>
+      ) : (
+        <Table minWidth={860}>
+          <thead>
+            <tr>
+              <Th>{t("contact")}</Th>
+              <Th>{t("stage")}</Th>
+              <Th>{t("owner")}</Th>
+              <Th>{t("followUp")}</Th>
+              <Th>{t("received")}</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {result.items.map((r) => {
+              const overdue = !!r.followUpOn && r.followUpOn <= today && !CLOSED_STAGES.includes(r.status);
+              const brief = [
+                r.citySlug ? (cityName.get(r.citySlug) ?? r.citySlug) : null,
+                r.eventType ? (eventTypeName.get(r.eventType) ?? r.eventType) : null,
+                r.guests ? t("guests", { count: r.guests }) : null,
+                r.eventDate ? formatDate(r.eventDate, locale) : null,
+              ].filter(Boolean);
+              return (
+                <Tr key={r.id}>
+                  <Td>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <RowLink href={`/admin/leads/${r.id}`}>{r.name}</RowLink>
+                      <StatusPill tone="neutral">{t(`kind_${r.kind}`)}</StatusPill>
+                    </div>
+                    <p className="mt-0.5 text-muted">
+                      {r.email}
+                      {r.phone ? ` · ${r.phone}` : ""}
                     </p>
-                  ) : null}
-                  <p className="mt-1 opacity-70">{formatDateTime(r.createdAt, locale)}</p>
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+                    {brief.length > 0 ? <p className="mt-0.5">{brief.join(" · ")}</p> : null}
+                    {r.message ? <p className="mt-1 line-clamp-2 max-w-md text-muted">{r.message}</p> : null}
+                  </Td>
+                  <Td>
+                    <StatusPill tone={leadTone(r.status)}>{t(`stage_${r.status}`)}</StatusPill>
+                  </Td>
+                  <Td className={cn(!r.ownerName && "text-muted")}>{r.ownerName ?? t("noOwner")}</Td>
+                  <Td>
+                    {r.followUpOn ? (
+                      <span className={cn(overdue && "font-semibold text-danger")}>
+                        {formatDate(r.followUpOn, locale)}
+                        {overdue ? <StatusPill tone="danger" className="ml-2">{t("overdue")}</StatusPill> : null}
+                      </span>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
+                  </Td>
+                  <Td className="whitespace-nowrap text-muted">{formatDateTime(r.createdAt, locale)}</Td>
+                </Tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      )}
 
       {result.pages > 1 ? (
-        <nav aria-label={t("pageOf", { page: result.page, pages: result.pages })} className="mt-8 flex items-center gap-4 text-sm">
+        <nav aria-label={t("pageOf", { page: result.page, pages: result.pages })} className="mt-6 flex items-center gap-4 text-sm">
           {result.page > 1 ? (
-            <Link href={href({ page: String(result.page - 1) })} className="underline underline-offset-4">
+            <Link href={href({ page: String(result.page - 1) })} className="text-coral underline underline-offset-4">
               ← {t("prev")}
             </Link>
           ) : null}
-          <span>{t("pageOf", { page: result.page, pages: result.pages })}</span>
+          <span className="text-muted">{t("pageOf", { page: result.page, pages: result.pages })}</span>
           {result.page < result.pages ? (
-            <Link href={href({ page: String(result.page + 1) })} className="underline underline-offset-4">
+            <Link href={href({ page: String(result.page + 1) })} className="text-coral underline underline-offset-4">
               {t("next")} →
             </Link>
           ) : null}

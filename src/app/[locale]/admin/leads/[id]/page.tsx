@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { addLeadNoteAction, updateLeadAction } from "@/app/actions/admin";
 import { LeadForm } from "@/components/admin/lead-form";
+import { StatusPill, leadTone } from "@/components/admin/ui";
 import { NoteForm } from "@/components/admin/note-form";
 import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
 import { getDb } from "@/db";
 import { listCities, listEventTypes } from "@/db/queries/halls";
 import { getInquiry, listAdminUsers, listNotes, type NoteRow } from "@/db/queries/inquiries";
@@ -25,7 +25,7 @@ export const metadata: Metadata = { title: "Lead", robots: { index: false } };
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-xs font-semibold text-coral-strong">{label}</dt>
+      <dt className="text-xs font-semibold text-muted">{label}</dt>
       <dd className="text-base break-words whitespace-pre-line">{children}</dd>
     </div>
   );
@@ -72,16 +72,16 @@ export default async function AdminLeadPage({ params }: { params: Promise<{ loca
   }
 
   return (
-    <section className="px-5 py-10 md:px-12">
-      <Link href="/admin/leads" className="text-sm underline underline-offset-4">
+    <section className="px-5 py-6 md:px-8 md:py-8">
+      <Link href="/admin/leads" className="text-sm text-coral underline underline-offset-4">
         ← {t("back")}
       </Link>
 
       <div className="mt-4 mb-6 flex flex-wrap items-center gap-3">
-        <h1 className="text-3xl font-semibold md:text-4xl">{lead.name}</h1>
-        <Chip>{t(`kind_${lead.kind}`)}</Chip>
-        <Chip>{t(`stage_${lead.status}`)}</Chip>
-        {overdue ? <Chip className="bg-coral-strong text-white">{t("overdue")}</Chip> : null}
+        <h1 className="text-2xl font-semibold md:text-3xl">{lead.name}</h1>
+        <StatusPill tone="neutral">{t(`kind_${lead.kind}`)}</StatusPill>
+        <StatusPill tone={leadTone(lead.status)}>{t(`stage_${lead.status}`)}</StatusPill>
+        {overdue ? <StatusPill tone="danger">{t("overdue")}</StatusPill> : null}
       </div>
 
       {/* Quick contact: the team talks to leads by phone, WhatsApp or email, outside the app. */}
@@ -146,14 +146,14 @@ export default async function AdminLeadPage({ params }: { params: Promise<{ loca
               {t("notes")}
             </h2>
             <NoteForm locale={locale} leadId={lead.id} action={addLeadNoteAction} />
-            {notes.length === 0 ? <p className="mt-4 text-sm opacity-80">{t("noNotes")}</p> : null}
+            {notes.length === 0 ? <p className="mt-4 text-sm text-muted">{t("noNotes")}</p> : null}
             <ol className="mt-5 flex flex-col gap-3">
               {notes.map((n) => (
                 <li key={n.id} className={cn("text-sm", n.kind === "note" && "rounded-card bg-blush p-4 shadow-card")}>
-                  <p className={cn(n.kind !== "note" && "opacity-80")}>
+                  <p className={cn(n.kind !== "note" && "text-muted")}>
                     <span className="font-semibold">{n.authorName ?? t("someone")}</span>
                     {n.kind === "note" ? null : <> {describe(n)}</>}
-                    <span className="opacity-70"> · {formatDateTime(n.createdAt, locale)}</span>
+                    <span className="text-muted"> · {formatDateTime(n.createdAt, locale)}</span>
                   </p>
                   {n.kind === "note" ? <p className="mt-1 whitespace-pre-line">{n.body}</p> : null}
                 </li>
