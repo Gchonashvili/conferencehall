@@ -117,6 +117,8 @@
     "phone": "Phone number",
     "password": "Password",
     "confirmPassword": "Re-enter password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "signupOrganizer": "Sign me up as organizer",
     "signupVenue": "Sign me up as venue"
   },

@@ -4,7 +4,7 @@ import { CircleCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { TextField } from "@/components/ui/field";
+import { PasswordField, TextField } from "@/components/ui/field";
 import { Honeypot } from "@/components/ui/honeypot";
 import { Notice } from "@/components/ui/notice";
 import { Turnstile } from "@/components/ui/turnstile";
@@ -67,8 +67,8 @@ export function AuthCard({ action, locale }: { action: Action; locale: string })
           <TextField id="au-name" name="name" label={t("fullName")} autoComplete="name" required defaultValue={values.name} error={err("name")} />
           <TextField id="au-email" name="email" type="email" label={t("email")} autoComplete="email" required defaultValue={values.email} error={err("email")} />
           <TextField id="au-phone" name="phone" type="tel" label={t("phone")} autoComplete="tel" defaultValue={values.phone} error={err("phone")} />
-          <TextField id="au-pass" name="password" type="password" label={t("password")} autoComplete="new-password" required minLength={8} error={err("password")} />
-          <TextField id="au-pass2" name="confirmPassword" type="password" label={t("confirmPassword")} autoComplete="new-password" required minLength={8} error={err("confirmPassword")} />
+          <PasswordField id="au-pass" name="password" showLabel={t("showPassword")} hideLabel={t("hidePassword")} label={t("password")} autoComplete="new-password" required minLength={8} error={err("password")} />
+          <PasswordField id="au-pass2" name="confirmPassword" showLabel={t("showPassword")} hideLabel={t("hidePassword")} label={t("confirmPassword")} autoComplete="new-password" required minLength={8} error={err("confirmPassword")} />
         </div>
         <div className="mt-4">
           <Turnstile />
@@ -106,7 +106,7 @@ export function LoginForm({ action, locale, verified }: { action: Action; locale
         <input type="hidden" name="locale" value={locale} />
         <div className="flex flex-col gap-3">
           <TextField id="li-email" name="email" type="email" label={t("email")} autoComplete="email" required defaultValue={values.email} />
-          <TextField id="li-pass" name="password" type="password" label={t("password")} autoComplete="current-password" required />
+          <PasswordField id="li-pass" name="password" showLabel={t("showPassword")} hideLabel={t("hidePassword")} label={t("password")} autoComplete="current-password" required />
         </div>
         <Button type="submit" size="lg" disabled={pending} className="mt-6 w-full">
           {tp("loginCta")}
@@ -177,8 +177,8 @@ export function ResetForm({ action, token }: { action: Action; token: string }) 
         {banner ? <Notice tone="error" className="mb-4">{banner}</Notice> : null}
         <input type="hidden" name="token" value={token} />
         <div className="flex flex-col gap-3">
-          <TextField id="rp-pass" name="password" type="password" label={tp("newPassword")} autoComplete="new-password" required minLength={8} error={err("password")} />
-          <TextField id="rp-pass2" name="confirmPassword" type="password" label={t("confirmPassword")} autoComplete="new-password" required minLength={8} error={err("confirmPassword")} />
+          <PasswordField id="rp-pass" name="password" showLabel={t("showPassword")} hideLabel={t("hidePassword")} label={tp("newPassword")} autoComplete="new-password" required minLength={8} error={err("password")} />
+          <PasswordField id="rp-pass2" name="confirmPassword" showLabel={t("showPassword")} hideLabel={t("hidePassword")} label={t("confirmPassword")} autoComplete="new-password" required minLength={8} error={err("confirmPassword")} />
         </div>
         <Button type="submit" size="lg" disabled={pending} className="mt-6 w-full">
           {tp("resetCta")}

@@ -1,7 +1,8 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import { RadioGroup } from "radix-ui";
-import type { ComponentProps } from "react";
+import { useState, type ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 export function Label({ className, ...props }: ComponentProps<"label">) {
@@ -41,6 +42,44 @@ export function TextField({
     <div className={className}>
       <Label htmlFor={id}>{label}</Label>
       <Input id={id} aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-error` : undefined} {...props} />
+      <FieldError id={`${id}-error`} error={error} />
+    </div>
+  );
+}
+
+/** Password input with an eye button that reveals what was typed. */
+export function PasswordField({
+  id,
+  label,
+  error,
+  className,
+  showLabel,
+  hideLabel,
+  ...props
+}: Omit<ComponentProps<"input">, "type"> & { id: string; label: string; error?: string; showLabel: string; hideLabel: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className={className}>
+      <Label htmlFor={id}>{label}</Label>
+      <div className="relative">
+        <Input
+          id={id}
+          type={show ? "text" : "password"}
+          className="pr-11"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-error` : undefined}
+          {...props}
+        />
+        <button
+          type="button"
+          onClick={() => setShow((v) => !v)}
+          aria-label={show ? hideLabel : showLabel}
+          aria-pressed={show}
+          className="absolute inset-y-0 right-0 grid w-11 cursor-pointer place-items-center text-brown"
+        >
+          {show ? <EyeOff aria-hidden className="size-5" /> : <Eye aria-hidden className="size-5" />}
+        </button>
+      </div>
       <FieldError id={`${id}-error`} error={error} />
     </div>
   );

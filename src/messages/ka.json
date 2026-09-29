@@ -117,6 +117,8 @@
     "phone": "ტელეფონის ნომერი",
     "password": "პაროლი",
     "confirmPassword": "გაიმეორეთ პაროლი",
+    "showPassword": "პაროლის ჩვენება",
+    "hidePassword": "პაროლის დამალვა",
     "signupOrganizer": "რეგისტრაცია ორგანიზატორად",
     "signupVenue": "რეგისტრაცია ობიექტად"
   },
