@@ -35,7 +35,6 @@ export default async function AdminLayout({ children, params }: { children: Reac
 
   return (
     <AdminShell
-      locale={locale}
       items={items}
       user={{ name: me.name, email: me.email }}
       labels={{ menu: tNav("menu"), closeMenu: tNav("closeMenu"), viewSite: t("viewSite"), logout: tAuth("logout"), admin: tAuth("admin") }}

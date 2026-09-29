@@ -104,12 +104,6 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   return redirect({ href: homeFor(role), locale });
 }
 
-export async function signOutAction(formData: FormData): Promise<void> {
-  const locale = localeOf(String(formData.get("locale") ?? ""));
-  await (await getAuth()).api.signOut({ headers: await headers() });
-  return redirect({ href: "/", locale });
-}
-
 /** Always reports success, so it can't be used to test which addresses exist. */
 export async function forgotPassword(_prev: FormState, formData: FormData): Promise<FormState> {
   const values = echoValues(formData);

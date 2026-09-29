@@ -1,13 +1,13 @@
 "use client";
 
 import { Menu, X } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { signOutAction } from "@/app/actions/auth";
 import { Link, usePathname } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import { homeFor } from "@/lib/roles";
 import { LangSwitcher } from "./lang-switcher";
+import { LogoutButton } from "./logout-button";
 import { Logo } from "./logo";
 
 const LINKS = [
@@ -20,7 +20,6 @@ const LINKS = [
 export function Nav() {
   const t = useTranslations("nav");
   const tp = useTranslations("authPages");
-  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -39,6 +38,12 @@ export function Nav() {
     setPrevPathname(pathname);
     setOpen(false);
   }
+
+  // Login, sign-up verification and other server-action session changes never
+  // reach Better Auth's client cache, so re-sync it after every navigation.
+  useEffect(() => {
+    authClient.$store.notify("$sessionSignal");
+  }, [pathname]);
 
   // While the drawer is open: focus its close button, close on Escape, and
   // stop the page behind it from scrolling.
@@ -66,12 +71,9 @@ export function Nav() {
       <Link href={account.href} className="text-sm tracking-wide uppercase underline-offset-4 hover:underline">
         {tp("account")}
       </Link>
-      <form action={signOutAction}>
-        <input type="hidden" name="locale" value={locale} />
-        <button type="submit" className="cursor-pointer text-sm tracking-wide uppercase underline-offset-4 hover:underline">
-          {tp("logout")}
-        </button>
-      </form>
+      <LogoutButton className="cursor-pointer text-sm tracking-wide uppercase underline-offset-4 hover:underline disabled:opacity-60">
+        {tp("logout")}
+      </LogoutButton>
     </>
   ) : (
     <Link href="/login" className="text-sm tracking-wide uppercase underline-offset-4 hover:underline">

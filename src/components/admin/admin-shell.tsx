@@ -2,8 +2,8 @@
 
 import { Building2, CalendarCheck, CreditCard, ExternalLink, LayoutDashboard, LayoutGrid, LogOut, Menu, Users, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { signOutAction } from "@/app/actions/auth";
 import { Logo } from "@/components/site/logo";
+import { LogoutButton } from "@/components/site/logout-button";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -28,13 +28,11 @@ type Labels = { menu: string; closeMenu: string; viewSite: string; logout: strin
  * footer inside /admin (see SiteChrome).
  */
 export function AdminShell({
-  locale,
   items,
   user,
   labels,
   children,
 }: {
-  locale: string;
   items: AdminNavItem[];
   user: { name: string; email: string };
   labels: Labels;
@@ -114,17 +112,13 @@ export function AdminShell({
           <span className="block truncate text-sm font-semibold">{user.name}</span>
           <span className="block truncate text-xs text-muted">{user.email}</span>
         </span>
-        <form action={signOutAction}>
-          <input type="hidden" name="locale" value={locale} />
-          <button
-            type="submit"
-            aria-label={labels.logout}
-            title={labels.logout}
-            className="grid size-9 cursor-pointer place-items-center rounded-lg text-muted hover:bg-peach hover:text-brown"
-          >
-            <LogOut aria-hidden className="size-[18px]" />
-          </button>
-        </form>
+        <LogoutButton
+          aria-label={labels.logout}
+          title={labels.logout}
+          className="grid size-9 cursor-pointer place-items-center rounded-lg text-muted hover:bg-peach hover:text-brown disabled:opacity-60"
+        >
+          <LogOut aria-hidden className="size-[18px]" />
+        </LogoutButton>
       </div>
     </div>
   );
