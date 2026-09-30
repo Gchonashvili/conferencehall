@@ -398,3 +398,22 @@ export const adminNotes = pgTable(
   },
   (t) => [index("admin_notes_entity_idx").on(t.entityType, t.entityId, t.createdAt)],
 );
+
+/**
+ * Failed sign-ins, kept only long enough to throttle password guessing (see
+ * domain/login-throttle.ts). Better Auth's own rate limiter never sees our
+ * Server Action's direct `api.signInEmail` calls, so we count them ourselves.
+ */
+export const loginAttempts = pgTable(
+  "login_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: text("email").notNull(),
+    ip: text("ip"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("login_attempts_email_idx").on(t.email, t.createdAt),
+    index("login_attempts_ip_idx").on(t.ip, t.createdAt),
+  ],
+);

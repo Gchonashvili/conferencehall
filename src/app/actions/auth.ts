@@ -13,6 +13,7 @@ import { normalizePhone } from "@/lib/phone";
 import { homeFor } from "@/lib/roles";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { fieldErrors } from "@/domain/booking-input";
+import { clearFailedLogins, isLoginBlocked, recordFailedLogin } from "@/domain/login-throttle";
 
 const localeOf = (v: string | undefined) => (v === "en" ? "en" : "ka");
 const password = z.string().min(8, { error: "password_short" }).max(128, { error: "password_short" });
@@ -86,21 +87,37 @@ const CODE_MAP: Record<string, string> = { EMAIL_NOT_VERIFIED: "email_not_verifi
 export async function signIn(_prev: FormState, formData: FormData): Promise<FormState> {
   const values = echoValues(formData);
   const locale = localeOf(values.locale);
+  if (String(formData.get("website") ?? "") !== "") return { status: "error", formError: "invalid_credentials", values };
+  if (!(await verifyTurnstile(String(formData.get("cf-turnstile-response") ?? "")))) {
+    return { status: "error", formError: "spam", values };
+  }
   const parsed = z.object({ email, password: z.string().min(1, { error: "invalid_credentials" }) }).safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) return { status: "error", formError: "invalid_credentials", values };
 
+  // Better Auth's own rate limiter only guards HTTP requests, not this direct
+  // call, so wrong passwords are counted here. Checked before the password is
+  // tried, so a locked account can't be guessed even with the right one.
+  const reqHeaders = await headers();
+  const ip = reqHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+  const who = { email: parsed.data.email, ip };
+  const db = await getDb();
+  if (await isLoginBlocked(db, who, new Date())) return { status: "error", formError: "too_many_logins", values };
+
   let role: string;
   try {
-    const res = await (await getAuth()).api.signInEmail({ body: parsed.data, headers: await headers() });
+    const res = await (await getAuth()).api.signInEmail({ body: parsed.data, headers: reqHeaders });
     role = (res.user as { role?: string }).role ?? "organizer";
   } catch (err) {
     if (isAPIError(err)) {
       const code = String((err.body as { code?: string } | undefined)?.code ?? "");
+      // A correct password on an unverified account isn't guessing.
+      if (code !== "EMAIL_NOT_VERIFIED") await recordFailedLogin(db, who, new Date());
       return { status: "error", formError: CODE_MAP[code] ?? "invalid_credentials", values };
     }
     console.error("[auth] sign-in failed", err);
     return { status: "error", formError: "generic", values };
   }
+  await clearFailedLogins(db, who.email);
   return redirect({ href: homeFor(role), locale });
 }
 

@@ -100,13 +100,17 @@ export function LoginForm({ action, locale, verified }: { action: Action; locale
 
   return (
     <Card title={tp("loginTitle")}>
-      <form action={formAction}>
+      <form action={formAction} className="relative">
         {verified && state.status !== "error" ? <Notice tone="success" className="mb-4">{tp("verified")}</Notice> : null}
         {banner ? <Notice tone="error" className="mb-4">{banner}</Notice> : null}
         <input type="hidden" name="locale" value={locale} />
+        <Honeypot />
         <div className="flex flex-col gap-3">
           <TextField id="li-email" name="email" type="email" label={t("email")} autoComplete="email" required defaultValue={values.email} />
           <PasswordField id="li-pass" name="password" showLabel={t("showPassword")} hideLabel={t("hidePassword")} label={t("password")} autoComplete="current-password" required />
+        </div>
+        <div className="mt-4">
+          <Turnstile />
         </div>
         <Button type="submit" size="lg" disabled={pending} className="mt-6 w-full">
           {tp("loginCta")}
